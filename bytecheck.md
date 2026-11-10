@@ -1,6 +1,6 @@
 # bytecheck — the byte-check part of orchestrate
 
-Your report is a claim; the filesystem is the evidence. This part produces the evidence with `bytecheck.py` used as shipped — no git, no second tool, no flag the tool lacks: what the protocol needs beyond its six subcommands it takes from files, hashes and your own commands. The core calls for it at three moments: when byte-exact checking is settled on at session open (the snapshot is taken then, before the first edit), when a specialist's reply arrives, and at round close. Asked for the byte-check alone, run it as written.
+Your report is a claim; the filesystem is the evidence. This part produces that evidence — bytecheck exists so an agent can check itself and show the work is exactly what it says it is; it is a discipline of self-verification, not a guard the user posts against you. It runs `bytecheck.py` as shipped — no git, no second tool, no flag the tool lacks: what the protocol needs beyond its six subcommands it takes from files, hashes and your own commands. The core calls for it at three moments: when byte-exact checking is settled on at session open (the snapshot is taken then, before the first edit), when a specialist's reply arrives, and at round close. Asked for the byte-check alone, run it as written.
 
 ## The tool
 
