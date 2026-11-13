@@ -1,9 +1,16 @@
-# Orchestrate declarations — portable block (TD)
+# Orchestrate declarations — universal layer (one file for every machine)
 
 The orchestrator reads declarations from `~/.config/orchestrate/declarations.md`
-on each machine; this file carries the machine-independent lines so other
-computers can adopt them — copy the block below into that file. The rest of a
-machine's declarations (models, paths, per-round notes) stays local.
+on each machine. That file has two parts, in this order:
+
+1. **The universal block** — the lines below, identical on every machine. Copy
+   them into the machine's declarations file; adopt updates by pulling this
+   repository.
+2. **The project lines** — each project keeps its own below the universal block
+   (models, paths, obsidian and briefs folders, byte-check and integration
+   modes, per-round notes). They never travel through this repository.
+
+## Universal block
 
 collapsed paste: eaten line breaks are never guessed back in the main session; the restore attempt is briefed to Sonnet 5.5 — a chat model like the Creative relay — with the collapsed bytes and the byte-authoritative originals carried in the brief; a raw-file export from the chat stays the preferred path when it exists.
 
