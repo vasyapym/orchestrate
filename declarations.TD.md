@@ -61,4 +61,4 @@ reply carriage: any specialist's artifacts may travel as ONE physical line — e
 
 ### Declarations on GitHub (standing)
 
-- every declaration addition is mirrored into this master (`declarations.TD.md`) and pushed right after the edit — the machines adopt by pulling
+- every declaration addition is mirrored into this master (`declarations.TD.md`) and pushed right after the edit — the machines adopt by pulling; the master's repository: https://github.com/vasyapym/orchestrate (its local clone: ~/Documents/orchestrate)
