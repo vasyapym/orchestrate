@@ -26,6 +26,7 @@ reply carriage: any specialist's artifacts may travel as ONE physical line — e
 - creative: Fable 5.1 — complex tasks, architecture, visual decisions
 - creative timeout: ~10 minutes per reply (owner, 2026-11-13) — briefs to the creative must be answerable inside that window: keep asks small, prefer staged replies over one large draw.
 - iterative: Sol 6.1 — review, debugging, bug-fix back-and-forth, general tasks
+- gentle: Astra-6 — debugging without Sol's harshness; doubles as creative (owner, 2026-11-13)
 
 (as of 2026-11-10)
 
@@ -56,4 +57,8 @@ reply carriage: any specialist's artifacts may travel as ONE physical line — e
 
 ### Cleanup (standing)
 
-- cleanup-after-yourself: yes — processed relay briefs and temporary files are deleted once their replies are integrated (the vault numbered brief files, inbox buffers, scratch); only the repo's committed artifacts and the gitignored lane machinery (probes/) survive.
+- cleanup-after-yourself: yes — processed relay briefs and temporary files are deleted once their replies are integrated (the vault numbered brief files, inbox buffers, scratch); replies, findings and harvest artifacts are cleaned up too once their round is closed and the records carry their content; only the repo's committed artifacts and the gitignored lane machinery (probes/) survive.
+
+### Declarations on GitHub (standing)
+
+- every declaration addition is mirrored into this master (`declarations.TD.md`) and pushed right after the edit — the machines adopt by pulling
