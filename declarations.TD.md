@@ -17,7 +17,7 @@ collapsed paste: eaten line breaks are never guessed back in the main session; t
 
 sonnet 5.5: takes about 60 KB per brief; split longer relays by deliverable.
 
-reply carriage: any specialist's artifacts may travel as ONE physical line — every break the marker character the brief dictates (⏎ has served) — decoded mechanically after the cut; standing for TD (traktorodetal.ru), a simple ask for a creative.
+reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry the artifact between the markers ALWAYS as ONE physical line — every break replaced by the marker character the brief dictates (⏎ has served) — decoded mechanically after the cut; other capacities keep the conditional one-line repair (only when the transport eats line breaks); standing for TD (traktorodetal.ru), a simple ask for a creative. (owner, 2026-11-14: mandatory for creative — collapsed pastes are the common transport; a collapsed one-line artifact loses nothing.)
 
 ## Project lines
 
