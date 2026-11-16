@@ -50,7 +50,12 @@ reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry
 
 - briefs: /Users/vasilij/Documents/vasyapym-Vault/03_projects — each session works in a per-project, per-date subfolder (`<project>-<date>`, created on first use if missing); round folders (`round-<k>/replies/`) live beside the briefs in that subfolder; the subfolder IS the session's working directory — code excerpts, probe/reproduction outputs, brief source scratch and every other session file live beside the briefs there, repos stay free of session scratch (2026-11-13)
 
-### Byte-check standing answers (optional; the skill reads these at session open)
+### Delivery (standing, 2026-11-16)
+
+- integration: the orchestrator applies changes in the working tree itself (the lesson rounds' established pattern; standing from the owner, 2026-11-16).
+- delivery: in this repository — vasyapym.github.io, working tree ~/Documents/luna2/luna2 — every round close commits and pushes its own paths plus the project-graph node WITHOUT waiting for an explicit owner request (owner, 2026-11-16: «make it so that you always commit and push in this repository»). Staging stays by path name; unrelated foreign changes are never touched; failures, conflicts or missing auth stop and report instead of forcing the delivery.
+
+## Byte-check standing answers (optional; the skill reads these at session open)
 
 - bytecheck: /Users/vasilij/Documents/bytecheck/bytecheck.py
 - byte-check: (unset — the skill will ask; standing answer: always | never)
