@@ -41,6 +41,12 @@ reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry
 - exact-text placement never relays: when the text already exists on disk (drafted replacements, harvested artifacts), it is placed by command from disk; a relay round-trip would re-expose it to chat transport mangling for no benefit.
 - verification: the orchestrator verifies anything non-trivial a runner produced before it counts — diffs reviewed, specs checked; decisions, brief wording and acceptance stay with the orchestrator.
 
+## Showing screenshots to the owner (standing, 2026-11-16)
+
+- when a round needs the owner's eye on screenshots, build a VERY SIMPLE static HTML page
+  (labeled before/after figures, no build step) and serve it locally on a free port
+  (never 4173/4175) — hand over the URL; file paths alone are not enough (owner, 2026-11-16).
+
 ### Extra opener lines appended to every brief, besides the standard chat-model instruction
 
 - (standing, 2026-11-14, owner) Output-discipline opener — appended to every brief, the orchestrator states the concrete window in each brief's output contract: «There's a <N–M>-minute time limit for you to output your answer — i.e. thinking even shouldn't last over that time period. After that there's a hard stop which is not graceful — unfortunately, your progress gets lost. It seems to me that the only solution is for you to output even if the result seems unfinished to you, because the priority for you is to finish on time, not to dwell thinking about finer details and nuances. The other reason for that is diminishing returns on time spent — your answer will be good enough if you spend thinking on the task either 15 or 40 minutes. 1. If you output only partly then that can be continued in a new session, which is better than nothing. 2. If you output as specs then the mechanical writing of code can be done by the orchestrator (a smaller model which sets the task and then integrates, tests it).»
