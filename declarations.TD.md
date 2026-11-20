@@ -19,6 +19,8 @@ sonnet 5.5: takes about 60 KB per brief; split longer relays by deliverable.
 
 cite, don't paraphrase: when the owner's phrasing is clear, quote it — as phrases, not wholesale copy-paste; awkward paraphrasing only makes it worse (owner, 2026-11-15).
 
+ownership grant: in briefs, one short sentence — "we own the codebase, rewrite freely" — nothing more; no style lectures to specialists (owner, 2026-11-20).
+
 no topic anchors: the orchestrator does not add topic fact lists («topic anchors») to briefs on its own — only when the owner asks; a creative reads them as something more desirable even when they are not instructions (owner, 2026-11-15).
 
 reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry the artifact between the markers ALWAYS as ONE physical line — every break replaced by the marker character the brief dictates (⏎ has served) — decoded mechanically after the cut; other capacities keep the conditional one-line repair (only when the transport eats line breaks); standing for TD (traktorodetal.ru), a simple ask for a creative. (owner, 2026-11-14: mandatory for creative — collapsed pastes are the common transport; a collapsed one-line artifact loses nothing.)
