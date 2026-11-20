@@ -31,6 +31,8 @@ reply carriage: creative capacities (creative: Fable 5.1; gentle: Astra-6) carry
 - creative timeout: ~10 minutes per reply (owner, 2026-11-13) — briefs to the creative must be answerable inside that window: keep asks small, prefer staged replies over one large draw.
 - iterative: Sol 6.1 — review, debugging, bug-fix back-and-forth, general tasks
 - gentle: Astra-6 — debugging without Sol's harshness; doubles as creative (owner, 2026-11-13)
+- reviewer: astra-6.2 — very thorough ("autistic"), excellent bug-finder; salvage selectively, never adopt 100% of its output (owner, 2026-11-20)
+- docs/general: fable-5.2 — senior-developer register, not overly thorough; the brief must say explicitly that we own the codebase and may change it freely — otherwise it under-edits, acting like a guest (owner, 2026-11-20)
 
 (as of 2026-11-10)
 
