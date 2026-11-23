@@ -90,3 +90,4 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - tree: Windows TD `C:\Users\v.argunov\Desktop\agent2\hermitage-3d` (a real git repo with CI on push).
 - briefs (Windows TD): the non-TD folder (§2).
 - delivery: the round's own paths committed and pushed at round close, without asking (owner, 2026-11-23, after a session left the round undelivered and a second agent read it as foreign unaccepted changes). Staging stays by path name; unrelated foreign changes are never touched; failures, conflicts or missing auth stop and report.
+- windows: the repo's Ops laws are the Mac reference machine's — here the win64 shell with NO override; the chain needs ZIMNY_BLENDER + the ktx bin on PATH (agent2 dirs, owner, 2026-11-23).
