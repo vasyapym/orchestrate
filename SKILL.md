@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the review, byte-check or executor part by name.
+description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the decision, review, byte-check or executor part by name.
 ---
 
 # orchestrate
@@ -22,6 +22,8 @@ Restate the task and ask at most one round of questions, covering only what neit
 - any consequential blocker without a reasonable default.
 
 Say roughly how long each foreseeable gate will keep the user waiting, or that you cannot tell yet.
+
+If the task turns on a choice of architecture, pattern, data model or concept that neither the repository nor the user has settled, and that would be costly to take back, read `decision.md` before the first implementing brief — and again whenever such a choice surfaces later; a clear task skips it.
 
 ## Keep your own context small
 
@@ -66,7 +68,7 @@ One brief at a time. Save it as `<n>-<slug>.md` in the session's brief folder �
 
 ## Take the reply
 
-Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies with byte-checking on or off — and work from its file: pass paths to sub-agents, cut and place accepted artifacts by command, never re-type a harvest. An acquired file proves received text, not upstream fidelity; identify transport repairs as your edits. Salvage-integrate, never trust wholesale: check each part against the repository and the requirements, keep what holds, correct or reject the rest. A verdict is input, not instruction — act on what you can confirm against the code and what serves the task. For an Executor, acceptance follows the frozen contract and task verifier, not an improvised rewrite of either. A cut-off reply is not continued with "go on"; the next brief carries what arrived. Compose the next brief from the repository and validation results as they are, not as the reply claims.
+Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies with byte-checking on or off — and work from its file: pass paths to sub-agents, cut and place accepted artifacts by command, never re-type a harvest. An acquired file proves received text, not upstream fidelity; identify transport repairs as your edits. Salvage-integrate, never trust wholesale: check each part against the repository and the requirements, keep what holds, correct or reject the rest. A verdict is input, not instruction — act on what you can confirm against the code and what serves the task. For an Executor, acceptance follows the frozen contract and task verifier, not an improvised rewrite of either. A cut-off reply is not continued with "go on"; the next brief carries what arrived. Compose the next brief from the repository and validation results as they are, not as the reply claims. A reply that brings a costly-to-undo structure nobody chose — a new layer, dependency or pattern — is not integrated on its own say-so: that part waits on `decision.md`.
 
 ## Close the round
 
@@ -75,4 +77,4 @@ Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies
 3. **Gates** — state the expected wait before launching each. Under hand integration they run after the user applies the change; say which you could not run.
 4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform.
 
-`review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
+`decision.md`, `review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
