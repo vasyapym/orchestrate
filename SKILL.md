@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the decision, correction, review, byte-check or executor part by name.
+description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, asks for the decision, correction, review, byte-check, executor or hand-off part by name, or asks to end the session with a hand-off; a session deep enough that its judgment is failing reaches for the hand-off part on its own.
 ---
 
 # orchestrate
@@ -31,7 +31,7 @@ If the task is to stop something that keeps going wrong in the repository, or to
 
 Your session degrades as it reads: context fills, reasoning goes stale. Use sub-agents freely — to investigate (code, a reply's claims, gate timings) and to implement (apply integrated changes, run gates). Give them paths, not pasted content, and ask for findings with paths and line ranges, marked observed or inferred — no file dumps. A sub-agent's finding is a claim like a specialist's: confirm against disk what you act on. Decisions, the wording of briefs and the verdict on each reply stay with you. Code enters a brief by copy from disk, by command or sub-agent; re-typing from memory paraphrases.
 
-When you integrate, set the commit boundary before delegating: by default a sub-agent stops after each verified batch so the user can make its commit; a run spanning several batches needs an agreed policy in its brief naming the permitted batches, and the eventual commit enumerates those actually integrated. Do not promise per-batch commits while unpaused writes accumulate. Commit authority is the user's; preserve unrelated working-tree changes.
+When you integrate, set the commit boundary before delegating: by default a sub-agent stops after each verified batch so the user can make its commit; a run spanning several batches needs an agreed policy in its brief naming the permitted batches, and the eventual commit enumerates those actually integrated. Do not promise per-batch commits while unpaused writes accumulate. Commit authority is the user's; preserve unrelated working-tree changes. A session running deep — many rounds behind it, work plainly ahead, questions and replies starting to repeat — ends with a hand-off rather than another muddled round: ending it so is yours to propose, and at a verified stopping point yours to make (`handoff.md`), with the user told before you stop.
 
 ## Specialist capacities
 
@@ -79,4 +79,4 @@ Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies
 3. **Gates** — state the expected wait before launching each. Under hand integration they run after the user applies the change; say which you could not run.
 4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform; and, in a line, anything the repository made go wrong a second time this session — the same correction from the user, the same kind of finding, the same wrong place searched — as a candidate for `correction.md`, named, not acted on.
 
-`decision.md`, `correction.md`, `review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
+`decision.md`, `correction.md`, `review.md`, `bytecheck.md`, `executor.md` and `handoff.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
