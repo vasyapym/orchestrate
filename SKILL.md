@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the decision, correction, review, byte-check or executor part by name.
+description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, asks for the decision, correction, review, byte-check, executor or hand-off part by name, asks to hand the session off or to pick up from a hand-off, or when this session's context is failing and the work must pass to a fresh session.
 ---
 
 # orchestrate
@@ -12,6 +12,8 @@ The user relays briefs by hand: you write a brief for a separate specialist chat
 Before any work, read the user's standing declarations file, `~/.config/orchestrate/declarations.md`, user-owned and outside this repo. If missing, create it with blank `creative:`, `iterative:`, `briefs:`, `rounds:`, `integration:`, `bytecheck:`, `byte-check:` and `cleanup-after-yourself:` lines. Read existing prose and keys without migrating the file; it may settle specialists and their opener lines, brief and round folders, who applies changes, the tool path, byte-check defaults and cleanup. A `references:` line may name read-only trees that are not the repository (name → path: a vendor or kernel copy, a sibling checkout); route questions about them through a sub-agent, cite what it finds as reference facts under the tree's name — never as repository facts — and write nothing there.
 
 Role labels are free text, not a two-name whitelist. Keep `creative:` and `iterative:` as valid shorthand; accept `role: <label>; specialist: <name>; mode: <brief mode>` with optional memory and budget overrides. One specialist may fill several roles. Current instructions override standing defaults and round-close defaults, including consultation limits; a session-only choice is not a new standing default. Write back only defaults the user explicitly adopts, preserving unrelated declarations. Recommend `cleanup-after-yourself: yes` rather than adopting it; its evidence-retention boundary is in `bytecheck.md`.
+
+If the session opens from a hand-off document, or the user asks to pick up earlier work, read `handoff.md` before restating the task: what the document carries is restated for correction, not asked again.
 
 Restate the task and ask at most one round of questions, covering only what neither the user nor the file settles and what has no reasonable default:
 
@@ -32,6 +34,8 @@ If the task is to stop something that keeps going wrong in the repository, or to
 Your session degrades as it reads: context fills, reasoning goes stale. Use sub-agents freely — to investigate (code, a reply's claims, gate timings) and to implement (apply integrated changes, run gates). Give them paths, not pasted content, and ask for findings with paths and line ranges, marked observed or inferred — no file dumps. A sub-agent's finding is a claim like a specialist's: confirm against disk what you act on. Decisions, the wording of briefs and the verdict on each reply stay with you. Code enters a brief by copy from disk, by command or sub-agent; re-typing from memory paraphrases.
 
 When you integrate, set the commit boundary before delegating: by default a sub-agent stops after each verified batch so the user can make its commit; a run spanning several batches needs an agreed policy in its brief naming the permitted batches, and the eventual commit enumerates those actually integrated. Do not promise per-batch commits while unpaused writes accumulate. Commit authority is the user's; preserve unrelated working-tree changes.
+
+All of this slows the degrading; none of it stops it. When the context was compacted or is nearly full, the user repeats a correction, or you re-read what you have read — and when a round closes with new work to follow, or the user asks to hand off — read `handoff.md`: the work passes to a fresh session.
 
 ## Specialist capacities
 
@@ -79,4 +83,4 @@ Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies
 3. **Gates** — state the expected wait before launching each. Under hand integration they run after the user applies the change; say which you could not run.
 4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform; and, in a line, anything the repository made go wrong a second time this session — the same correction from the user, the same kind of finding, the same wrong place searched — as a candidate for `correction.md`, named, not acted on.
 
-`decision.md`, `correction.md`, `review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
+`decision.md`, `correction.md`, `review.md`, `bytecheck.md`, `executor.md` and `handoff.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
