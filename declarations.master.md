@@ -84,3 +84,8 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - briefs (Windows TD): the non-TD folder (§2.1), since brief 21 (owner, 2026-11-19).
 - delivery: every round close commits and pushes its own paths plus the project-graph node WITHOUT waiting for an owner request: «make it so that you always commit and push in this repository» (owner, 2026-11-16). Staging stays by path name; unrelated foreign changes are never touched; failures, conflicts or missing auth stop and report instead of forcing the delivery.
 - lesson briefs: other lessons are never taken into account: no paths, titles or openings from the lessons corpus enter a lesson brief, and the orchestrator adds no commentary of its own to a brief (owner, 2026-11-19, after the sibling-openings experiment in brief 25).
+
+### 3.3 hermitage-3d
+- tree: Windows TD `C:\Users\v.argunov\Desktop\agent2\hermitage-3d` (a real git repo with CI on push).
+- briefs (Windows TD): the non-TD folder (§2).
+- delivery: the round's own paths committed and pushed at round close, without asking (owner, 2026-11-23, after a session left the round undelivered and a second agent read it as foreign unaccepted changes). Staging stays by path name; unrelated foreign changes are never touched; failures, conflicts or missing auth stop and report.
