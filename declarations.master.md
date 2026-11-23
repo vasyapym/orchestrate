@@ -48,6 +48,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - projects: TD, vasyapym.github.io.
 - master clone: `C:\Users\v.argunov\Documents\GitHub\orchestrate`
 - subagents: opencode-go/glm-5.3-flash only; every sub-agent runs on it; other models are chat models (relay targets), not sub-agent models (owner, 2026-11-13).
+- powershell scripts: plain ASCII .ps1 files, no nested @() array literals (they flatten); count occurrences with IndexOf/LastIndexOf, never Split; PS 5.1 reads BOM-less .ps1 as ANSI, so no non-ASCII literals (owner, 2026-11-23).
 - obsidian: `C:\Users\v.argunov\Desktop\TD Vault git\`
 - briefs (any non-TD work): `C:\Users\v.argunov\Desktop\TD Vault git\03-1_projects\briefs` (owner, 2026-11-20). Brief numbering is one lineage across all brief folders.
 - bytecheck: (unset)
