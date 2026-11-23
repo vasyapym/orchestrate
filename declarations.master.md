@@ -39,7 +39,7 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 
 ### 1.6 Declarations
 - mirror: every declaration addition goes into the master `declarations.master.md` right after the edit; the orchestrator writes the local clone itself; machines adopt by pulling. Repository: https://github.com/vasyapym/orchestrate.
-- skill repos (vasyapym/orchestrate, vasyapym/bytecheck): the owner commits and pushes them himself, or asks for it explicitly.
+- skill repos (vasyapym/orchestrate, vasyapym/bytecheck): the owner commits and pushes them himself, or asks for it explicitly; vasyapym/orchestrate: the agent commits and pushes always (owner, 2026-11-23).
 
 ## 2. Machines
 Keys read at session open: `briefs` (default brief folder; empty: the skill asks each session), `rounds` (unset: the brief folder; may name another directory), `bytecheck` (tool path), `byte-check` (standing answer always | never; unset: the skill asks), `obsidian` (vault).
@@ -59,7 +59,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
  - project trees (traktorodetal.ru's git, www3, every other project folder on this computer): never.
  - mimo (`C:\Users\v.argunov\Documents\mimo`): normal git; the agent commits and pushes at session end.
  - vasyapym.github.io: the agent commits and pushes at round close, without asking (§3.2).
- - skill repos: the owner (§1.6).
+ - skill repos: the owner (§1.6); vasyapym/orchestrate — the agent commits and pushes always (owner, 2026-11-23).
 
 ### 2.2 Mac: `/Users/vasilij`
 - master clone: `~/Documents/orchestrate`
