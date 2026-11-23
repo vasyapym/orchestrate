@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the decision, review, byte-check or executor part by name.
+description: Run the hand-relayed loop between this coding-agent session and non-agentic specialist models in separate chats — you write briefs, the user carries them out by hand, replies return as captured message text or saved files. Use when the user types "orchestrate", asks to brief or consult a specialist, pastes a specialist's reply back, or asks for the decision, correction, review, byte-check or executor part by name.
 ---
 
 # orchestrate
@@ -24,6 +24,8 @@ Restate the task and ask at most one round of questions, covering only what neit
 Say roughly how long each foreseeable gate will keep the user waiting, or that you cannot tell yet.
 
 If the task turns on a choice of architecture, pattern, data model or concept that neither the repository nor the user has settled, and that would be costly to take back, read `decision.md` before the first implementing brief — and again whenever such a choice surfaces later; a clear task skips it.
+
+If the task is to stop something that keeps going wrong in the repository, or to make it easier for agents to work in, read `correction.md` before the first brief: it acts only on friction that has already recurred, and passes any choice still open to `decision.md`.
 
 ## Keep your own context small
 
@@ -75,6 +77,6 @@ Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies
 1. **Review pass** (`review.md`): a bug-finding brief over what the round produced, before any gate. By default one pass to the Iterative capacity; the user may name other reviewers or ask for several in turn. It looks for what would break, not for polish.
 2. **Byte-exact verification** (`bytecheck.md`) after the last edit, where the user asked for it. Under hand integration it proves the tree untouched and renders the deliverable's diff book.
 3. **Gates** — state the expected wait before launching each. Under hand integration they run after the user applies the change; say which you could not run.
-4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform.
+4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform; and, in a line, anything the repository made go wrong a second time this session — the same correction from the user, the same kind of finding, the same wrong place searched — as a candidate for `correction.md`, named, not acted on.
 
-`decision.md`, `review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
+`decision.md`, `correction.md`, `review.md`, `bytecheck.md` and `executor.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.

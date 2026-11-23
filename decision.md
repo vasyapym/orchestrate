@@ -15,7 +15,7 @@ Skip it when a precedent in the repository answers the question — follow the p
 
 Later in a session the signals are: a reply assumes a structure the repository does not have, or brings one nobody chose; a fix keeps spreading into files the task never named; two briefs answer the same question differently; a review finding is deferred because it is structural. Then stop composing implementing briefs, bring the batch in hand to a verified state or set it aside, and tell the user why.
 
-This file decides; it does not tidy. Restructuring code where no choice is pending is not its job; a decision that needs such work names it as a next step.
+This file decides; it does not tidy. Restructuring code where no choice is pending is not its job; a decision that needs such work names it as a next step. Removing the cause of friction that has already recurred is `correction.md`'s; any choice that work uncovers comes back here.
 
 ## Frame the question
 
