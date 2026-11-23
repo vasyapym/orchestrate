@@ -40,6 +40,7 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 ### 1.6 Declarations
 - mirror: every declaration addition goes into the master `declarations.master.md` right after the edit; the orchestrator writes the local clone itself; machines adopt by pulling. Repository: https://github.com/vasyapym/orchestrate.
 - skill repos (vasyapym/orchestrate, vasyapym/bytecheck): the owner commits and pushes them himself, or asks for it explicitly; vasyapym/orchestrate: the agent commits and pushes always (owner, 2026-11-23).
+- runner (Windows TD): `C:\Users\v.argunov\agent-runner\` — the worker script + the clone; Scheduled Task `AgentRunner` fires every ~20 min (interactive logon, one instance, 4 h cap); mailbox: private `vasyapym/agent-jobs` (`jobs/open` → `jobs/done`). Unrestricted shell jobs by the owner's design (2026-11-23): per-command timeout (default 180 min), audit-echo of every command, `jobs/PAUSED` stop, the `%JOB%` token. Heavy work (e2e/bakes/agent sessions) is delegated here from the owner's MacBook via the mailbox.
 
 ## 2. Machines
 Keys read at session open: `briefs` (default brief folder; empty: the skill asks each session), `rounds` (unset: the brief folder; may name another directory), `bytecheck` (tool path), `byte-check` (standing answer always | never; unset: the skill asks), `obsidian` (vault).
