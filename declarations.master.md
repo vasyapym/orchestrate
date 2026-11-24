@@ -4,7 +4,7 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 ## 1. Common block
 
 ### 1.1 Capacities (names change anytime)
-- creative: the owner picks the model per brief; Fable 5.1 max or Fable 5.2 max preferred, Fable 5.5 Opus max less so, high-reasoning variants less often. Complex tasks, architecture, visual decisions.
+- creative: the owner picks the model per brief; Fable 5.1 max or Fable 5.2 max preferred, Fable 5.5 Opus max less so, high-reasoning variants less often. Complex tasks, architecture, visual decisions. No screenshots — visual evidence travels as descriptions + measured numbers; the owner's eye validates at sittings (owner, 2026-11-24).
 - creative timeout: ~10 minutes per reply; briefs must fit it: small asks, staged replies over one large draw (owner, 2026-11-13).
 - iterative: Sol 6.1; review, debugging, bug-fix back-and-forth, general tasks (as of 2026-11-10).
 - gentle: Astra-6; debugging without Sol's harshness; doubles as creative (owner, 2026-11-13).
