@@ -64,6 +64,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - byte-check: never. The tool stays off; the salvage-integrate word-exactness diff (fidelity-diff) runs only when a reply's formatting must be rebuilt by hand (flattened paste); the owner can veto per round.
 - diff .md: always saved in the same folder as briefs.
 - before-after: with every integration deliverable also save a «Было / Стало» .md beside the briefs: the same file region verbatim before and after, as copy-paste blocks without line numbers inside (owner, 2026-11-17).
+- before-after format: find-and-replace list — small unique anchor (1–3 lines of current code) → replacement (anchor + change); a file rewritten ~80–95% ships as whole-file copy-paste (owner, 2026-11-24).
 - git, per repo (owner, 2026-11-19, 2026-11-20):
  - project trees (traktorodetal.ru's git, www3, every other project folder on this computer): never.
  - mimo (`C:\Users\v.argunov\Documents\mimo`): normal git; the agent commits and pushes at session end.
