@@ -43,12 +43,10 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 - runner (Windows TD): `C:\Users\v.argunov\agent-runner\` — the worker script + the clone; Scheduled Task `AgentRunner` fires every ~20 min (interactive logon, one instance, 4 h cap); mailbox: private `vasyapym/agent-jobs` (`jobs/open` → `jobs/done`). Unrestricted shell jobs by the owner's design (2026-11-23): per-command timeout (default 180 min), audit-echo of every command, `jobs/PAUSED` stop, the `%JOB%` token. Heavy work (e2e/bakes/agent sessions) is delegated here from the owner's MacBook via the mailbox.
 
 ### 1.7 Session economy (owner, 2026-11-24)
-- The orchestrator's context is the round's scarce resource: setup must not outrun the briefs. The burn class (sq-arch-day's session open, 2026-11-24, ~20 % before brief 1): wholesale file reads to «understand», long authored artifacts through the orchestrator's hands, derivation prose in-session.
-- Reads: line ranges only (grep/sed), and only to verify lines a brief will quote verbatim; all gathering goes to a sub-agent (paths + line ranges, observed/inferred). A previous session's SESSION-STATE.md note, when present, replaces re-derivation at session open.
-- Authoring: artifacts over ~80 lines (probes, batteries, record scaffolds) are authored by a sub-agent against a tight spec — the orchestrator verifies the law-critical lines and the diff shape; below ~80 lines it writes directly.
-- Derivation and geometry reasoning live in the session folder as a scratch note; the session carries the verdict and the numbers, not the path there.
-- Replies stay compact; long content lives in files the session folder already holds.
-- Handoff trigger, explicit: when ≈50 % of the context is spent, or a single relay cycle costs > 10 %, read handoff.md and pass the work on — the SESSION-STATE note is the carrier, never a re-read of the repo.
+- Reads: line ranges only, to verify lines a brief quotes; gathering goes to sub-agents.
+- Artifacts over ~80 lines are authored by a sub-agent; the orchestrator verifies law-critical lines only.
+- Derivation lives in the session folder; the session carries the verdict and the numbers.
+- Handoff at ≈50 % context or > 10 % per relay cycle (handoff.md; SESSION-STATE.md is the carrier).
 
 ## 2. Machines
 Keys read at session open: `briefs` (default brief folder; empty: the skill asks each session), `rounds` (unset: the brief folder; may name another directory), `bytecheck` (tool path), `byte-check` (standing answer always | never; unset: the skill asks), `obsidian` (vault).
