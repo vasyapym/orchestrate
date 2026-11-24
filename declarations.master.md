@@ -22,7 +22,6 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 - window: the likelier a task runs long, the SHORTER the window: light 10–15 minutes, heavy 6–10; judged per brief (owner, 2026-11-14, after a full diagnosis reply was lost to the creative hard stop).
 - self-contained always: a continuation embeds the adopted decisions verbatim — a fresh chat must work (owner, 2026-11-24).
 - continuations carry the draw's raw material too — the current state it edits: shipped values with numbers, the parked wording, the touched construction; the thread is a fallback, never a source (owner, 2026-11-24).
-- re-read declarations.md before every brief — it changes mid-session; the opening read goes stale (owner, 2026-11-24).
 
 ### 1.3 Replies and transport
 - collapsed paste: eaten line breaks are never guessed back in the main session; the restore is briefed to Sonnet 5.5 (a chat model like the Creative relay) with the collapsed bytes and the byte-authoritative originals in the brief; a raw-file export from the chat stays the preferred path when it exists. Relay pastes arrive collapsed (3/3 on 2026-11-19): plan the restore round by default; the restored artifact returns as ONE line with ⏎ break markers, decoded mechanically after the cut.
