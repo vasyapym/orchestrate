@@ -83,6 +83,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - rounds: (unset)
 
 ### 2.3 Mac (new laptop): `/Users/vasyapym`
+- The Mac's toolchain lives in volta (`~/.volta/bin`, off the ambient PATH — export it first): builds, vitest, probes, captures and the darwin goldens run here; the box = the bake/heavy lane. A toolchain probe checks the version-manager homes, not just the ambient PATH (owner, 2026-11-25).
 - new laptop (owner, 2026-11-24): all projects live here over time; §2.2 is the previous Mac.
 - master clone: `~/Documents/orchestrate`
 - obsidian: `/Users/vasyapym/Documents/vasyapym-Vault`
