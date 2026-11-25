@@ -1,5 +1,5 @@
-# Orchestrate declarations: master (`declarations.master.md`)
-Source of truth for every machine. A machine's `~/.config/orchestrate/declarations.md` = §1 verbatim + its §2 entry + the §3 entries of its projects. Owner-owned; the agent fills in what a session settles. Adopt by pulling this repo.
+# orchestrate declarations — Mac /Users/vasyapym (new laptop)
+Derived from declarations.master.md (§1 + §2.3 + §3). The master is the source of truth: re-derive this file after pulling the orchestrate repo. (2026-11-24)
 
 ## 1. Common block
 
@@ -33,6 +33,7 @@ Source of truth for every machine. A machine's `~/.config/orchestrate/declaratio
 ### 1.4 Integration and verification
 - integration: the orchestrator applies integrated changes in the working tree itself, the declarations master clone included: "it always has been you" (owner, 2026-11-16, 2026-11-20). Git delivery is separate, per repo (§2, §3).
 - mechanical code from a spec: delegate to Sol 6.1 or the runner Sonnet 5.5; the orchestrator owns the task and the verification, not the keystrokes (owner, 2026-11-24).
+- never API-interrupt (`/api/session/<id>/interrupt`) a sub-agent with background work in flight — it kills their background shells (the poll loops died mid-watch); the stop: the follow-up `stop, do not re-arm` (owner, 2026-11-25).
 - verification: anything non-trivial a runner produced is verified by the orchestrator before it counts (diffs reviewed, specs checked); decisions, brief wording and acceptance stay with the orchestrator.
 - trivial: lessons and other trivial deliverables go without byte-check and without heavy verification of that kind: save and report.
 - cleanup-after-yourself: yes. Processed relay briefs and temporary files (the vault numbered brief files, inbox buffers, scratch) are deleted once their replies are integrated; replies, findings and harvest artifacts once their round is closed and the records carry their content; only the repo's committed artifacts and the gitignored lane machinery (probes/) survive.
