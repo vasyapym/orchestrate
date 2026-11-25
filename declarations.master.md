@@ -66,6 +66,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - briefs (any non-TD work): `C:\Users\v.argunov\Desktop\TD Vault git\03-1_projects\briefs` (owner, 2026-11-20). Brief numbering is one lineage across all brief folders.
 - bytecheck: (unset)
 - byte-check: never. The tool stays off; the salvage-integrate word-exactness diff (fidelity-diff) runs only when a reply's formatting must be rebuilt by hand (flattened paste); the owner can veto per round.
+- byte-check economy (owner, 2026-11-25): advertised counts in generated deliverables are counted from the emitted bytes, never typed (the «41 строка» labels shipped beside 40-line blocks through two generations and a review pass; round-1 CORRECTIONS.md).
 - diff .md: always saved in the same folder as briefs.
 - before-after: with every integration deliverable also save a «Было / Стало» .md beside the briefs: the same file region verbatim before and after, as copy-paste blocks without line numbers inside (owner, 2026-11-17).
 - before-after format: find-and-replace list — small unique anchor (1–3 lines of current code) → replacement (anchor + change); a file rewritten ~80–95% ships as whole-file copy-paste (owner, 2026-11-24).
