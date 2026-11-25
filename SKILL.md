@@ -83,4 +83,4 @@ Acquire the reply once, by the ladder in `bytecheck.md`'s Harvest — it applies
 3. **Gates** — state the expected wait before launching each. Under hand integration they run after the user applies the change; say which you could not run.
 4. **Report**: what was integrated and what rejected, where deliverables lie, gate results, blockers, validation you could not perform; and, in a line, anything the repository made go wrong a second time this session — the same correction from the user, the same kind of finding, the same wrong place searched — as a candidate for `correction.md`, named, not acted on.
 
-`decision.md`, `correction.md`, `review.md`, `bytecheck.md`, `executor.md` and `handoff.md` sit beside this file; read each when its moment comes, not at the start. Asked for only one of them, run it alone under the rules above.
+`decision.md`, `correction.md`, `mailbox.md`, `review.md`, `bytecheck.md`, `executor.md` and `handoff.md` sit beside this file; read each when its moment comes, not at the start — `mailbox.md` when the session opens on agent-jobs mailbox work and again at its close. Asked for only one of them, run it alone under the rules above.

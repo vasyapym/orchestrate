@@ -104,6 +104,8 @@ The reader starts clean. That is what the hand-off buys; do not spend it.
 
 ## Leave it
 
+First the close checkpoint, when the session holds mailbox records (`mailbox.md`); then the hand-off.
+
 Where sub-agents exist, one reads the draft against the tests and the list above and returns violations by line; you fix them — it does not rewrite. Then tell the user, without echoing the document: its path and size; the line to paste into the fresh session — `Pick up from the hand-off at <path>.`; what is uncommitted, in a line — the commit is theirs; and a request to read Goal and Settled, the two sections only they can correct, and to answer what Open marks as theirs. Fix what they correct, then stop. Work done afterwards makes the document stale: write it again at the real end, in the same file.
 
 ## Pick it up
