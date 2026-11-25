@@ -63,6 +63,7 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - subagents: opencode-go/glm-5.3-flash only; every sub-agent runs on it; other models are chat models (relay targets), not sub-agent models (owner, 2026-11-13).
 - powershell scripts: plain ASCII .ps1 files, no nested @() array literals (they flatten); count occurrences with IndexOf/LastIndexOf, never Split; PS 5.1 reads BOM-less .ps1 as ANSI, so no non-ASCII literals (owner, 2026-11-23). Native stdout through a pipeline re-encodes UTF-8 as cp1251/866 — byte-copy diffs via cmd `>` + UTF8.GetString, never `git diff | Out-String` (owner, 2026-11-23).
 - obsidian: `C:\Users\v.argunov\Desktop\TD Vault git\`
+- TD vault direction (owner, 2026-11-25): `Desktop\TD Vault git\` is the vault; `Documents\vasyapym-Vault` is a different local copy, not the target.
 - briefs (any non-TD work): `C:\Users\v.argunov\Desktop\TD Vault git\03-1_projects\briefs` (owner, 2026-11-20). Brief numbering is one lineage across all brief folders.
 - bytecheck: (unset)
 - byte-check: never. The tool stays off; the salvage-integrate word-exactness diff (fidelity-diff) runs only when a reply's formatting must be rebuilt by hand (flattened paste); the owner can veto per round.
