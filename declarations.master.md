@@ -68,6 +68,8 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - bytecheck: (unset)
 - byte-check: never. The tool stays off; the salvage-integrate word-exactness diff (fidelity-diff) runs only when a reply's formatting must be rebuilt by hand (flattened paste); the owner can veto per round.
 - byte-check economy (owner, 2026-11-25): advertised counts in generated deliverables are counted from the emitted bytes, never typed (the «41 строка» labels shipped beside 40-line blocks through two generations and a review pass; round-1 CORRECTIONS.md).
+- «do as commits» (owner, 2026-11-25): the round's deliverable ships as per-commit «Было/Стало» files cut from the docs by script (pairs, per-file counts), one suggested commit message each, task number first.
+- «do as commits» check (owner, 2026-11-25): after each owner application byte-verify the tree (Стало ×1, Было gone, no cross-commit mixing) and probe the file's EOL vs HEAD before the commit — a flipped EOL is a whole-file diff; fix = save in the file's original EOL.
 - diff .md: always saved in the same folder as briefs.
 - before-after: with every integration deliverable also save a «Было / Стало» .md beside the briefs: the same file region verbatim before and after, as copy-paste blocks without line numbers inside (owner, 2026-11-17).
 - before-after format: find-and-replace list — small unique anchor (1–3 lines of current code) → replacement (anchor + change); a file rewritten ~80–95% ships as whole-file copy-paste (owner, 2026-11-24).
