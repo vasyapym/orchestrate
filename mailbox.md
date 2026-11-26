@@ -6,3 +6,4 @@ The coordination conventions are canonical in the agent-jobs repo: `SIGNALS.md` 
 - The open checkpoint is the first act of a session on mailbox work; the close checkpoint is the last act before `handoff.md`.
 - Relay briefs to chat models never carry mailbox state; chat models never see tickets or notes.
 - The hand-off no longer repeats what an `open.all` note already says.
+- machines: agent-jobs/MACHINES.md (read at open)
