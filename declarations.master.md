@@ -38,6 +38,7 @@ Derived from declarations.master.md (§1 + §2.3 + §3). The master is the sourc
 - cleanup-after-yourself: yes. Processed relay briefs and temporary files (the vault numbered brief files, inbox buffers, scratch) are deleted once their replies are integrated; replies, findings and harvest artifacts once their round is closed and the records carry their content; only the repo's committed artifacts and the gitignored lane machinery (probes/) survive.
 
 ### 1.5 Conduct
+- simple questions: when the owner asks a simple question, they usually mean «ответь коротко и поверхностно» — answer briefly and superficially; depth only on the substantive tasks (owner, 2026-11-26).
 - mid-task: answer the owner's messages, then continue the interrupted work.
 - docs text: documentation and handoff texts are English, very minimal; the agent is usually overly verbose and bad at words (owner, 2026-11-19).
 - screenshots: when a round needs the owner's eye on screenshots, build a VERY SIMPLE static HTML page (labeled before/after figures, no build step), serve it locally on a free port (never 4173/4175) and hand over the URL; file paths alone are not enough (owner, 2026-11-16).
