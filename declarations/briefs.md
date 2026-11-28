@@ -1,5 +1,6 @@
 # orchestrate declarations — briefs and transport laws (§1.2 briefs, §1.3 replies and transport).
-Read before composing a brief or taking a reply. the source: the declarations split, 2026-11-26 (DECISION-3, the hermitage-3d records round).
+Read before composing a brief or taking a reply.
+Before ANY brief: read this file whole, with it open at compose time. Not from memory. the source: the declarations split, 2026-11-26 (DECISION-3, the hermitage-3d records round).
 
 ### 1.2 Briefs
 - ownership grant: one short sentence, "we own the codebase, rewrite freely", nothing more; no style lectures to specialists (owner, 2026-11-20).
