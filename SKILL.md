@@ -9,9 +9,9 @@ The user relays briefs by hand: you write a brief for a separate specialist chat
 
 ## Open the session
 
-Before any work, read the user's standing declarations file, `~/.config/orchestrate/declarations.md`, user-owned and outside this repo. If missing, create it with blank `creative:`, `iterative:`, `briefs:`, `rounds:`, `integration:`, `bytecheck:`, `byte-check:` and `cleanup-after-yourself:` lines. Read existing prose and keys without migrating the file; it may settle specialists and their opener lines, brief and round folders, who applies changes, the tool path, byte-check defaults and cleanup. A `references:` line may name read-only trees that are not the repository (name → path: a vendor or kernel copy, a sibling checkout); route questions about them through a sub-agent, cite what it finds as reference facts under the tree's name — never as repository facts — and write nothing there.
+Before any work, read the user's standing declarations root, `~/.config/orchestrate/declarations.md` — a symlink to `~/.config/opencode/skills/orchestrate/declarations/core.md`; core.md's map names every part and moment by absolute path, and the keys (`briefs`, `rounds`, `bytecheck`, `byte-check`, `obsidian`) live in the machine block, named by absolute path. Read the parts whole at their moments; nothing writes the root — adopted defaults are edited into their one homes (capacities: roster.md; keys: the machine block). A `references:` line may name read-only trees that are not the repository (name → path: a vendor or kernel copy, a sibling checkout); route questions about them through a sub-agent, cite what it finds as reference facts under the tree's name — never as repository facts — and write nothing there.
 
-Role labels are free text, not a two-name whitelist. Keep `creative:` and `iterative:` as valid shorthand; accept `role: <label>; specialist: <name>; mode: <brief mode>` with optional memory and budget overrides. One specialist may fill several roles. Current instructions override standing defaults and round-close defaults, including consultation limits; a session-only choice is not a new standing default. Write back only defaults the user explicitly adopts, preserving unrelated declarations. Recommend `cleanup-after-yourself: yes` rather than adopting it; its evidence-retention boundary is in `bytecheck.md`.
+Role labels are free text, not a two-name whitelist. Keep `creative:` and `iterative:` as valid shorthand; accept `role: <label>; specialist: <name>; mode: <brief mode>` with optional memory and budget overrides. One specialist may fill several roles. Current instructions override standing defaults and round-close defaults, including consultation limits; a session-only choice is not a new standing default. Adopted defaults are written into their one homes, preserving unrelated declarations. Recommend `cleanup-after-yourself: yes` rather than adopting it; its evidence-retention boundary is in `bytecheck.md`.
 
 If the session opens from a hand-off document, or the user asks to pick up earlier work, read `handoff.md` before restating the task: what the document carries is restated for correction, not asked again.
 
@@ -58,7 +58,7 @@ Short where it speaks, thorough where it quotes.
 - **Self-contained.** The reader remembers nothing: a continuation restates adopted decisions in full and carries committed files verbatim, never "as you wrote before" (follow-ups inside an Iterative thread excepted).
 - **English**, whatever language the session runs in.
 
-Open every brief with this, plus any line the user declared for that specialist:
+Start every brief from `declarations/brief-skeleton.md`, copied by command into the brief folder — fill its `<…>` placeholders, never edit its two verbatim blocks. Open every brief with the skeleton's texts, plus any line the user declared for that specialist:
 
 > Answer as a chat model — no agentic operations. Do not run tools, commands or tests, and do not change any of your settings; an agentic session does all of that.
 
