@@ -25,7 +25,7 @@ One folder holds every hand-off, from every project. The first of these that app
 
 1. a folder the user names now;
 2. the `handoff:` line of `~/.config/orchestrate/declarations.md` — with the loop not open, read that line and nothing else;
-3. `~/.config/orchestrate/handoff/`, created on first use. Say where it is and offer the `handoff:` line; do not write it unasked.
+3. the Obsidian vault: `<vault>/<the session's project folder>` (e.g. `03-2_projects/<project>-<date>-<lane>/HANDOFF.md`), beside that session's briefs. Say where it is; do not write it unasked.
 
 Never inside a repository's working tree, where it would show in status, ride into a commit or fall to a clean; never the temporary directory — a hand-off may wait days.
 
