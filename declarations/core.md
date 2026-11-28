@@ -27,4 +27,4 @@ Read every session, at session open. the source: the declarations split, 2026-11
 - Reads: line ranges only, to verify lines a brief quotes; gathering goes to sub-agents.
 - Artifacts over ~80 lines are authored by a sub-agent; the orchestrator verifies law-critical lines only.
 - Derivation lives in the session folder; the session carries the verdict and the numbers.
-- Handoff at ≈50 % context or > 10 % per relay cycle (handoff.md; SESSION-STATE.md is the carrier).
+- Handoff: no hard rule; the orchestrator can't see its own fill — ask the owner when in doubt (owner, 2026-11-26).

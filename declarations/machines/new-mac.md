@@ -9,6 +9,6 @@ Keys read at session open: `briefs` (default brief folder; empty: the skill asks
 - master clone: `~/Documents/orchestrate`
 - obsidian: `/Users/vasyapym/Documents/vasyapym-Vault`
 - briefs: `/Users/vasyapym/Documents/vasyapym-Vault/03-1_projects` (owner, 2026-11-24). Sessions work in per-project, per-date subfolders beside the briefs; the subfolder IS the session's working directory: code excerpts, probe outputs, brief scratch; repos stay free of session scratch.
-- bytecheck: (unset — the tool is not installed on this laptop yet)
+- bytecheck: vendored beside the skill (~/.config/opencode/skills/orchestrate/bytecheck.py + extract-reply.py) — run those copies; byte-check standing answer unset (the skill asks per round)
 - byte-check: (unset)
 - rounds: (unset)
