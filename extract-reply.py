@@ -8,9 +8,18 @@ it ever writes are the destination reply and its ``.source.json`` receipt.
 
 On-demand reference: ``extract-reply.md`` beside this file.
 
-Exit codes: 0 acquisition succeeded (including capture-only), 1 no unique
-fully matching candidate (nothing written), 2 usage, schema, decoding,
-database or file failure with a named cause on stderr (nothing written).
+Under ``--restore-seams`` (usable only with ``--capture-only``) the tool also
+writes ``<out>.original.md`` — the captured bytes as received — after
+restoring the glued marker seams under a strict one-space rule and proving
+the edit reversible byte-for-byte. Restoration is planned per required line
+and for the terminal independently: a line occurring zero or several times
+is recorded as not restored in the receipt while the restorable lines still
+restore; nothing is written when the proof fails.
+
+Exit codes: 0 acquisition succeeded (including capture-only, restored or
+not), 1 no unique fully matching candidate (nothing written), 2 usage,
+schema, decoding, database or file failure with a named cause on stderr
+(nothing written).
 """
 
 import argparse
@@ -44,12 +53,16 @@ REQUIRED_TABLES = {
 }
 LEGACY_TABLES = ("session", "message", "part")
 
+# "since" (epoch seconds) is written by brief-check.py when it records a
+# hand-over time; it is provenance, not a check, and is covered by the
+# profile hash like every other byte of the profile file.
 PROFILE_KEYS = {
     "version",
     "required_lines",
     "line_counts",
     "terminal_line",
     "forbidden_lines",
+    "since",
 }
 
 
@@ -155,6 +168,9 @@ def load_profile(path):
     version = parsed.get("version")
     if isinstance(version, bool) or not isinstance(version, int) or version != 1:
         raise Fail(f"profile: unsupported version: {version!r}")
+    since = parsed.get("since")
+    if since is not None and (isinstance(since, bool) or not isinstance(since, int) or since < 0):
+        raise Fail("profile: since must be a non-negative integer (epoch seconds)")
     required = parsed.get("required_lines", [])
     if not isinstance(required, list) or any(not isinstance(x, str) for x in required):
         raise Fail("profile: required_lines must be a list of strings")
@@ -255,6 +271,271 @@ def format_checks(checks):
         state = "pass" if item["pass"] else "fail"
         parts.append(f"forbidden_lines[{item['index']}]=" + state)
     return " ".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# bounded seam restoration (--restore-seams)
+
+
+def plan_restore(text, profile):
+    """Plan the bounded seam restoration of a pasted capture, per line.
+
+    Each required line and the terminal sentinel is planned independently.
+    A site is restorable when it occurs exactly once and not as a whole
+    physical line; it has up to two seams, the before and after boundaries
+    where line breaks were eaten, each marked by a single optional space.
+    Restoring a seam drops that one space (when present) and inserts one
+    LF, so the line stands as a whole physical line again. A single space
+    between two adjacent occurrences is one seam shared by both sides: one
+    unambiguous edit breaks both. The terminal occurrence is counted only
+    where the sentinel could be the terminal line — a space-delimited word
+    ending a physical core — so mentions in prose never block it; a
+    terminal standing alone apart from a trailing space keeps the
+    documented strip (the physical line's own terminator already provides
+    the break), while a sentinel glued mid-line is restored at its before
+    side and keeps its trailing spaces. Zero occurrences ("not-found") and
+    two or more ("ambiguous") are recorded per line while the restorable
+    lines still restore. Anything else — a seam run of two or more spaces,
+    touching or overlapping occurrences — is a bounded global failure:
+    nothing is guessed or invented.
+
+    Returns {"state": "applied"|"identity"|"failed", "text", "seams",
+    "edits", "outcomes", "notes", "reason"}; "edits" maps each rebuilt
+    physical line back to its original for the reversibility proof, and
+    "outcomes" lists {"label", "state", "seams", "occurrences"} per site,
+    content-free ("notes" phrases the not-restored lines for the report).
+    """
+    sites = []
+    seen = set()
+    for index, want in enumerate(profile["required"]):
+        if want in seen:
+            continue
+        seen.add(want)
+        sites.append((want, f"required_lines[{index}]"))
+    if profile["terminal"] is not None and profile["terminal"] not in seen:
+        sites.append((profile["terminal"], "terminal_line"))
+    raw_lines = text.split("\n")
+    records = {}
+    pending = {}  # label -> site with one glued occurrence, planned below
+    hosts = {}
+    for want, label in sites:
+        is_terminal = label == "terminal_line"
+        hits = []
+        for line_index, raw in enumerate(raw_lines):
+            core = raw[:-1] if raw.endswith("\r") else raw
+            at = core.find(want)
+            while at >= 0:
+                if not is_terminal or (
+                    (at == 0 or core[at - 1] == " ")
+                    and core[at + len(want) :].strip(" ") == ""
+                ):
+                    hits.append((line_index, at, at + len(want)))
+                at = core.find(want, at + 1)
+        if not hits:
+            records[label] = {"label": label, "state": "not-found", "seams": 0, "occurrences": 0}
+            continue
+        if len(hits) > 1:
+            records[label] = {
+                "label": label,
+                "state": "ambiguous",
+                "seams": 0,
+                "occurrences": len(hits),
+            }
+            continue
+        line_index, start, end = hits[0]
+        raw = raw_lines[line_index]
+        core = raw[:-1] if raw.endswith("\r") else raw
+        if core == want:
+            records[label] = {"label": label, "state": "restored", "seams": 0, "occurrences": 1}
+            continue  # already a whole physical line: no seam to restore
+        pending[label] = want
+        entry = hosts.setdefault(line_index, {"core": core, "term": raw[len(core):], "occs": []})
+        entry["occs"].append({"start": start, "end": end, "label": label})
+
+    def site_outcomes(over_glued_as):
+        list_ = []
+        for _, label in sites:
+            if label in pending:
+                list_.append(
+                    {
+                        "label": label,
+                        "state": over_glued_as,
+                        "seams": 0,
+                        "occurrences": 1,
+                    }
+                )
+            else:
+                list_.append(records[label])
+        return list_
+
+    def failed_plan(reason):
+        outcomes = site_outcomes("ambiguous")
+        return {
+            "state": "failed",
+            "text": None,
+            "seams": 0,
+            "edits": None,
+            "outcomes": outcomes,
+            "notes": restore_notes(outcomes),
+            "reason": reason,
+        }
+
+    if not hosts:
+        outcomes = site_outcomes("ambiguous")  # no glued site pending
+        return {
+            "state": "identity",
+            "text": None,
+            "seams": 0,
+            "edits": None,
+            "outcomes": outcomes,
+            "notes": restore_notes(outcomes),
+            "reason": None,
+        }
+
+    def trailing_run(segment):
+        return len(segment) - len(segment.rstrip(" "))
+
+    def leading_run(segment):
+        return len(segment) - len(segment.lstrip(" "))
+
+    site_seams = {label: 0 for label in pending}
+    edits = []
+    seams = 0
+    rebuilt = list(raw_lines)
+    for line_index, entry in hosts.items():
+        core, occs = entry["core"], sorted(entry["occs"], key=lambda occ: occ["start"])
+        for left, right in zip(occs, occs[1:]):
+            if right["start"] < left["end"]:
+                return failed_plan("overlapping seam sites share one physical line")
+        pieces = []
+        head = core[: occs[0]["start"]]
+        if head:
+            run = trailing_run(head)
+            if run > 1:
+                return failed_plan(f"seam before {occs[0]['label']} has {run} spaces")
+            site_seams[occs[0]["label"]] += 1
+            pieces.append(head[: len(head) - run])
+            pieces.append("\n")
+            seams += 1
+        pieces.append(core[occs[0]["start"] : occs[0]["end"]])
+        position = occs[0]["end"]
+        for left, right in zip(occs, occs[1:]):
+            gap = core[position : right["start"]]
+            if gap == " ":
+                # one space glued between two occurrences: a single seam
+                # breaks both sides — the break sat between them
+                pieces.append("\n")
+                seams += 1
+                site_seams[left["label"]] += 1
+                site_seams[right["label"]] += 1
+            else:
+                lead = leading_run(gap)
+                if lead > 1:
+                    return failed_plan(f"seam after {left['label']} has {lead} spaces")
+                middle = gap[lead:]
+                trail = trailing_run(middle)
+                if trail > 1:
+                    return failed_plan(f"seam before {right['label']} has {trail} spaces")
+                middle = middle[: len(middle) - trail] if trail else middle
+                if middle == "":
+                    return failed_plan(
+                        f"ambiguous seam between {left['label']} and {right['label']}"
+                    )
+                site_seams[left["label"]] += 1
+                site_seams[right["label"]] += 1
+                pieces.append("\n")
+                pieces.append(middle)
+                pieces.append("\n")
+                seams += 2
+            pieces.append(core[right["start"] : right["end"]])
+            position = right["end"]
+        tail = core[position:]
+        last = occs[-1]
+        if tail:
+            if last["label"] == "terminal_line":
+                if last["start"] == 0:
+                    # the terminal line arrived with a trailing space: the
+                    # physical line's own terminator already provides the break
+                    seams += 1
+                    site_seams[last["label"]] += 1
+                else:
+                    # a sentinel glued mid-line keeps its trailing spaces
+                    pieces.append(tail)
+            else:
+                run = leading_run(tail)
+                if run > 1:
+                    return failed_plan(f"seam after {last['label']} has {run} spaces")
+                site_seams[last["label"]] += 1
+                seams += 1
+                if tail[run:] != "":
+                    pieces.append("\n")
+                    pieces.append(tail[run:])
+        rebuilt_raw = "".join(pieces) + entry["term"]
+        edits.append(
+            {
+                "label": occs[0]["label"],
+                "original_raw": raw_lines[line_index],
+                "rebuilt_raw": rebuilt_raw,
+            }
+        )
+        rebuilt[line_index] = rebuilt_raw
+    for _, label in sites:
+        if label in pending:
+            records[label] = {
+                "label": label,
+                "state": "restored",
+                "seams": site_seams[label],
+                "occurrences": 1,
+            }
+    outcomes = [records[label] for _, label in sites]
+    return {
+        "state": "applied",
+        "text": "\n".join(rebuilt),
+        "seams": seams,
+        "edits": edits,
+        "outcomes": outcomes,
+        "notes": restore_notes(outcomes),
+        "reason": None,
+    }
+
+
+def prove_reversible(text, plan):
+    """Strip the inserted breaks/spaces back and assert byte-equality.
+
+    Each edit's rebuilt content must occur exactly once in the restored
+    text — as a run of consecutive physical lines, so a rebuilt short
+    sentinel line is not confused with a longer line merely containing it —
+    and the round trip must reproduce the captured bytes exactly; anything
+    else is exit 2 naming the site, so a file that cannot be proven
+    reversible is never written.
+    """
+    work = plan["text"]
+    for edit in plan["edits"]:
+        span = edit["rebuilt_raw"].count("\n") + 1
+        lines = work.split("\n")
+        hits = [
+            index
+            for index in range(len(lines) - span + 1)
+            if "\n".join(lines[index : index + span]) == edit["rebuilt_raw"]
+        ]
+        if len(hits) != 1:
+            raise Fail(f"reversibility assertion failed at {edit['label']}")
+        lines[hits[0] : hits[0] + span] = [edit["original_raw"]]
+        work = "\n".join(lines)
+    if work != text:
+        label = plan["edits"][0]["label"] if plan["edits"] else "restore"
+        raise Fail(f"reversibility assertion failed at {label} (final bytes differ)")
+
+
+def restore_notes(outcomes):
+    """Report phrasing of the not-restored lines, from a plan outcome list."""
+    notes = []
+    for item in outcomes or []:
+        if item["state"] == "not-found":
+            notes.append(f"{item['label']} occurs 0 times")
+        elif item["state"] == "ambiguous" and item["occurrences"] > 1:
+            notes.append(f"{item['label']} occurs {item['occurrences']} times")
+    return notes
 
 
 # ---------------------------------------------------------------------------
@@ -451,8 +732,8 @@ def render_report(scope, hits, phrase_used=True):
     return "\n".join(lines)
 
 
-def build_receipt(scope, selected, mode, profile, extracted_at):
-    return {
+def build_receipt(scope, selected, mode, profile, extracted_at, restore=None):
+    receipt = {
         "schema": RECEIPT_SCHEMA,
         "mode": mode,
         "source": SOURCE_FIELD,
@@ -469,6 +750,16 @@ def build_receipt(scope, selected, mode, profile, extracted_at):
         "checks": selected["checks"],
         "failed_checks": selected["failed"],
     }
+    if restore is not None:
+        # The receipt never claims the original bytes were received whole:
+        # restored text is a mechanical, proven-reversible edit of the capture.
+        receipt["restored"] = restore["applied"]
+        receipt["restore_sites"] = restore["seams"]
+        receipt["original_sha256"] = restore["original_sha256"]
+        # Per-line outcome list, content-free: which required lines and the
+        # terminal were restored, not found or ambiguous, with seam counts.
+        receipt["restore_outcomes"] = restore["outcomes"]
+    return receipt
 
 
 def provenance(receipt):
@@ -490,23 +781,40 @@ def create_file(path, data):
         raise Fail(f"cannot write {path}: {exc}")
 
 
-def publish(out_path, out_bytes, receipt_path, receipt_obj, receipt_bytes):
-    """No-clobber publication: identical pair + matching provenance is a no-op."""
+def publish(out_path, out_bytes, receipt_path, receipt_obj, receipt_bytes,
+            extra_path=None, extra_bytes=None):
+    """No-clobber publication: identical files + matching provenance is a no-op.
+
+    With extra_path/extra_bytes (the --restore-seams original copy) the
+    no-clobber set is a triple: output, <out>.original.md and receipt.
+    """
     out_exists = os.path.exists(out_path)
     receipt_exists = os.path.exists(receipt_path)
-    if out_exists != receipt_exists:
-        missing = receipt_path if out_exists else out_path
+    extra_exists = os.path.exists(extra_path) if extra_path is not None else None
+    if extra_exists is None:
+        if out_exists != receipt_exists:
+            missing = receipt_path if out_exists else out_path
+            raise Fail(f"incomplete output/receipt pair: {missing} is missing")
+    elif len({out_exists, receipt_exists, extra_exists}) > 1:
+        missing = (out_path if not out_exists
+                   else receipt_path if not receipt_exists else extra_path)
         raise Fail(f"incomplete output/receipt pair: {missing} is missing")
     if out_exists:
         try:
             out_stat = os.stat(out_path)
             receipt_stat = os.stat(receipt_path)
+            extra_stat = os.stat(extra_path) if extra_exists else None
         except OSError as exc:
             raise Fail(f"cannot read existing pair: {exc}")
-        if not stat.S_ISREG(out_stat.st_mode) or not stat.S_ISREG(receipt_stat.st_mode):
+        regular = stat.S_ISREG(out_stat.st_mode) and stat.S_ISREG(receipt_stat.st_mode)
+        if extra_exists and not stat.S_ISREG(extra_stat.st_mode):
+            regular = False
+        if not regular:
             raise Fail(f"existing pair is not a pair of regular files: {out_path}")
         if read_file(out_path) != out_bytes:
             raise Fail(f"conflict: existing output differs: {out_path}")
+        if extra_exists and read_file(extra_path) != extra_bytes:
+            raise Fail(f"conflict: existing original differs: {extra_path}")
         try:
             existing = json.loads(read_file(receipt_path).decode("utf-8"))
         except (ValueError, UnicodeDecodeError):
@@ -515,10 +823,15 @@ def publish(out_path, out_bytes, receipt_path, receipt_obj, receipt_bytes):
             raise Fail(f"conflict: provenance differs (message id, profile hash or mode): {receipt_path}")
         return "noop"
     create_file(out_path, out_bytes)
+    written = [out_path]
     try:
+        if extra_path is not None:
+            create_file(extra_path, extra_bytes)
+            written.append(extra_path)
         create_file(receipt_path, receipt_bytes)
     except Fail:
-        remove_quiet(out_path)
+        for path in written:
+            remove_quiet(path)
         raise
     return "written"
 
@@ -565,6 +878,12 @@ def build_parser():
         action="store_true",
         help="preserve the named message with failed checks recorded (requires --message)",
     )
+    parser.add_argument(
+        "--restore-seams",
+        action="store_true",
+        help="with --capture-only: restore glued marker seams under the one-space rule,"
+             " prove the edit reversible and rescore the profile on the restored text",
+    )
     return parser
 
 
@@ -574,6 +893,8 @@ def run(args):
         raise Fail("empty phrase: an identifying phrase is required")
     if args.capture_only and not args.message:
         raise Fail("--capture-only requires --message <id>")
+    if args.restore_seams and not args.capture_only:
+        raise Fail("--restore-seams requires --capture-only")
     profile = load_profile(args.profile)
     since_ms = parse_since(args.since) if args.since is not None else None
     if args.session in (args.exclude_session or []):
@@ -583,6 +904,9 @@ def run(args):
 
     scope, candidates = db_phase(db_path, args.session, args.message, since_ms, exclude_messages)
 
+    restore_summary = None
+    restore_reason = None
+    original_bytes = None
     if args.capture_only:
         # The enumeration is already narrowed to the named row; marker checks
         # are scored and recorded but cannot block the capture.
@@ -592,6 +916,27 @@ def run(args):
             selected["text"], args.phrase, profile
         )
         hits = candidates
+        if args.restore_seams:
+            original_bytes = selected["bytes"]
+            restore_summary = {
+                "applied": False,
+                "seams": 0,
+                "original_sha256": hashlib.sha256(original_bytes).hexdigest(),
+            }
+            plan = plan_restore(selected["text"], profile)
+            restore_summary["outcomes"] = plan["outcomes"]
+            if plan["state"] == "applied":
+                prove_reversible(selected["text"], plan)
+                selected["text"] = plan["text"]
+                selected["bytes"] = plan["text"].encode("utf-8")
+                selected["pass"], selected["checks"], selected["failed"] = score(
+                    selected["text"], args.phrase, profile
+                )
+                restore_summary["applied"] = True
+                restore_summary["seams"] = plan["seams"]
+            elif plan["state"] == "failed":
+                restore_reason = plan["reason"]
+            # state == "identity": nothing glued; the summary alone is recorded
     else:
         hits = []
         for candidate in candidates:
@@ -603,6 +948,18 @@ def run(args):
                 hits.append(candidate)
 
     report = render_report(scope, hits)
+    if restore_summary is not None:
+        notes = restore_notes(restore_summary["outcomes"])
+        suffix = ("; not restored: " + ", ".join(notes)) if notes else ""
+        if restore_summary["applied"]:
+            report += (
+                f"\nrestore: applied seams={restore_summary['seams']}{suffix};"
+                " checks rescored on the restored text"
+            )
+        elif restore_reason:
+            report += f"\nrestore: not applied: {restore_reason}{suffix}"
+        else:
+            report += "\nrestore: nothing to restore; the output is the captured bytes" + suffix
     if args.capture_only:
         mode = "capture-only"
     elif args.message is not None:
@@ -630,11 +987,16 @@ def run(args):
         mode = "profile"
 
     extracted_at = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    receipt = build_receipt(scope, selected, mode, profile, extracted_at)
+    receipt = build_receipt(scope, selected, mode, profile, extracted_at, restore=restore_summary)
     receipt_bytes = (json.dumps(receipt, indent=2, sort_keys=True) + "\n").encode("utf-8")
     out_path = args.out
     receipt_path = out_path + ".source.json"
-    status = publish(out_path, selected["bytes"], receipt_path, receipt, receipt_bytes)
+    extra_path = extra_bytes = None
+    if restore_summary is not None and restore_summary["applied"]:
+        extra_path = out_path + ".original.md"
+        extra_bytes = original_bytes
+    status = publish(out_path, selected["bytes"], receipt_path, receipt, receipt_bytes,
+                     extra_path=extra_path, extra_bytes=extra_bytes)
     tail = (
         f"extract-reply: exit 0 mode={mode} message={selected['id']} "
         f"bytes={len(selected['bytes'])} out={out_path} receipt={receipt_path} result={status}"

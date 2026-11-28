@@ -12,6 +12,7 @@ Safety contract for this suite (operational cautions C1-C4):
 """
 
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -170,6 +171,8 @@ PREFLIGHT = "REPLY: orchestrate-batch-1"
 TERMINAL = "COMPLETE"
 FORBIDDEN = "TRUNCATED-HERE"
 STEP = "STEP-1: ok"
+BEGIN = "=== begin seam-check ==="
+END = "=== end seam-check ==="
 T0 = 1_700_000_000_000  # epoch ms fixture base (2023-11-14T22:13:20Z)
 
 _seq = 0
@@ -1418,6 +1421,402 @@ class DatabaseSafetyTests(ExtractorTest):
             r"ALTER\s+TABLE|ATTACH\s+(?:DATABASE|))\b"
         )
         self.assertIsNone(write_rx.search(src), "no write statements in extract-reply.py")
+
+
+# --------------------------------------------------------------------------
+# Profile schema: optional "since" (round 6 correction)
+
+
+class ProfileSinceTests(ExtractorTest):
+    def test_since_key_accepted_as_non_negative_int(self):
+        db, stored = self.success_db(name="since-ok.db", sid="s-since", mid="m-since")
+        for name, value in (("epoch-seconds", 1_700_000_000), ("zero", 0)):
+            with self.subTest(since=name):
+                profile = std_profile()
+                profile["since"] = value
+                out = self.outdir / f"since-ok-{name}.md"
+                proc = self.cli(db, "s-since", out, self.write_profile(profile, f"since-ok-{name}.json"))
+                self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+                self.assertEqual(out.read_bytes(), stored.encode("utf-8"))
+                self.assert_receipt_clean(out)
+
+    def test_since_key_type_rejections(self):
+        db, _ = self.success_db(name="since-bad.db", sid="s-sinceb", mid="m-sinceb")
+        cases = [
+            ("string", "1700000000"),
+            ("negative", -1),
+            ("float", 1700000000.5),
+            ("bool", True),
+        ]
+        for name, value in cases:
+            with self.subTest(since=name):
+                profile = std_profile()
+                profile["since"] = value
+                out = self.outdir / f"since-bad-{name}.md"
+                proc = self.cli(db, "s-sinceb", out, self.write_profile(profile, f"since-bad-{name}.json"))
+                self.assertEqual(proc.returncode, 2)
+                self.assertIn("since", proc.stderr.decode())
+                self.assert_no_files(out)
+
+    def test_other_unknown_keys_still_rejected(self):
+        db, _ = self.success_db(name="since-unk.db", sid="s-sinceu", mid="m-sinceu")
+        profile = std_profile()
+        profile["sinec"] = 1_700_000_000  # a typo must not weaken a profile
+        out = self.outdir / "since-unk.md"
+        proc = self.cli(db, "s-sinceu", out, self.write_profile(profile, "since-unk.json"))
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("unknown keys", proc.stderr.decode())
+        self.assert_no_files(out)
+
+
+# --------------------------------------------------------------------------
+# --restore-seams: bounded seam restoration (round 6 correction)
+
+
+def seam_profile():
+    return mini_profile(required=[BEGIN, END], terminal=TERMINAL)
+
+
+def load_tool_module():
+    """Load extract-reply.py as a module for guards unreachable via the CLI."""
+    spec = importlib.util.spec_from_file_location("extract-reply-tool", SCRIPT)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class RestorationTests(ExtractorTest):
+    def glue_db(self, name, sid, mid, glued):
+        return self.success_db(name=name, sid=sid, mid=mid, text=cbody(glued))
+
+    def test_glued_capture_is_restored_and_accepted(self):
+        glued = PREFLIGHT + "\n" + BEGIN + " para one\npara two " + END + "\n" + TERMINAL + " "
+        restored = PREFLIGHT + "\n" + BEGIN + "\npara one\npara two\n" + END + "\n" + TERMINAL
+        db, stored = self.glue_db("r1.db", "s-r1", "m-r1", glued)
+        out = self.outdir / "r1.md"
+        proc = self.cli(db, "s-r1", out, self.write_profile(seam_profile(), "r1.json"),
+                        extra=["--capture-only", "--message", "m-r1", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=3", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        original = Path(str(out) + ".original.md")
+        self.assertEqual(original.read_bytes(), stored.encode("utf-8"))
+        self.assert_receipt_clean(out)
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertEqual(receipt["mode"], "capture-only")  # never claims acceptance of the original
+        self.assertTrue(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 3)
+        self.assertEqual(receipt["original_sha256"], hashlib.sha256(stored.encode("utf-8")).hexdigest())
+        restored_bytes = stored.replace(glued, restored).encode("utf-8")
+        self.assertEqual(receipt["sha256"], hashlib.sha256(restored_bytes).hexdigest())
+        self.assertEqual(receipt["byte_length"], len(restored_bytes))
+        self.assertEqual(receipt["failed_checks"], [])  # profile passes after restoration
+        self.assertEqual(receipt["checks"]["required_lines"][0]["pass"], True)
+        # rerun of the restored trio is a no-op
+        before = (out.read_bytes(), original.read_bytes(),
+                  os.stat(str(out)).st_mtime_ns, os.stat(str(original)).st_mtime_ns)
+        proc = self.cli(db, "s-r1", out, self.write_profile(seam_profile(), "r1.json"),
+                        extra=["--capture-only", "--message", "m-r1", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("result=noop", proc.stdout.decode())
+        self.assertEqual(before, (out.read_bytes(), original.read_bytes(),
+                                  os.stat(str(out)).st_mtime_ns, os.stat(str(original)).st_mtime_ns))
+
+    def test_unglued_capture_with_flag_is_restored_false(self):
+        db, stored = self.success_db(name="r2.db", sid="s-r2", mid="m-r2")
+        out = self.outdir / "r2.md"
+        proc = self.cli(db, "s-r2", out, extra=["--capture-only", "--message", "m-r2", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("nothing to restore", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.encode("utf-8"))
+        self.assertFalse(Path(str(out) + ".original.md").exists())
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertEqual(receipt["mode"], "capture-only")
+        self.assertFalse(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 0)
+        self.assertEqual(receipt["original_sha256"], receipt["sha256"])
+
+    def test_marker_zero_occurrences_not_restored(self):
+        # GAP 1: a stale required line occurring zero times is recorded per
+        # line; the restorable lines on the same capture still restore.
+        glued = PREFLIGHT + "\nbody " + END + "\n" + TERMINAL  # BEGIN absent entirely
+        restored = PREFLIGHT + "\nbody\n" + END + "\n" + TERMINAL
+        db, stored = self.glue_db("r3.db", "s-r3", "m-r3", glued)
+        out = self.outdir / "r3.md"
+        proc = self.cli(db, "s-r3", out, self.write_profile(seam_profile(), "r3.json"),
+                        extra=["--capture-only", "--message", "m-r3", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("required_lines[0] occurs 0 times", proc.stdout.decode())
+        self.assertIn("applied seams=1", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        self.assertEqual(Path(str(out) + ".original.md").read_bytes(), stored.encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertTrue(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 1)
+        self.assertIn("required_lines[0]", receipt["failed_checks"])  # still recorded, not blocking
+        outcomes = receipt["restore_outcomes"]
+        self.assertEqual(
+            [(item["label"], item["state"], item["seams"]) for item in outcomes],
+            [
+                ("required_lines[0]", "not-found", 0),
+                ("required_lines[1]", "restored", 1),
+                ("terminal_line", "restored", 0),
+            ],
+        )
+        # content-free: no message text in the outcome list
+        self.assertNotIn("body", json.dumps(outcomes))
+
+    def test_marker_twice_does_not_block_a_restorable_line(self):
+        # GAP 1: a line occurring two or more times is ambiguous per line;
+        # a restorable line elsewhere still restores.
+        stale = BEGIN  # occurs twice below
+        glued = (
+            PREFLIGHT + "\n" + BEGIN + "\n" + BEGIN + " tail\nhead " + END + "\n" + TERMINAL
+        )
+        restored = (
+            PREFLIGHT + "\n" + BEGIN + "\n" + BEGIN + " tail\nhead\n" + END + "\n" + TERMINAL
+        )
+        db, stored = self.glue_db("r3b.db", "s-r3b", "m-r3b", glued)
+        out = self.outdir / "r3b.md"
+        proc = self.cli(db, "s-r3b", out, self.write_profile(seam_profile(), "r3b.json"),
+                        extra=["--capture-only", "--message", "m-r3b", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=1", proc.stdout.decode())
+        self.assertIn("required_lines[0] occurs 2 times", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertTrue(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 1)
+        outcomes = receipt["restore_outcomes"]
+        self.assertEqual(
+            [(item["label"], item["state"], item["seams"]) for item in outcomes],
+            [
+                ("required_lines[0]", "ambiguous", 0),
+                ("required_lines[1]", "restored", 1),
+                ("terminal_line", "restored", 0),
+            ],
+        )
+
+    def test_review_shape_stale_pair_plus_findings_and_terminal(self):
+        # Mirrors the real round-4 capture: a stale <name> marker pair
+        # (zero occurrences) beside a findings pair — the begin marker
+        # whole-line, the end marker glued on its left — and a terminal
+        # line that arrives with a trailing space. Per-line restoration
+        # restores the findings pair and the terminal and records the
+        # stale lines, without blocking.
+        stale_begin = "=== begin <name> ==="
+        stale_end = "=== end <name> ==="
+        profile = {
+            "version": 1,
+            "required_lines": [stale_begin, stale_end, BEGIN, END],
+            "terminal_line": TERMINAL,
+        }
+        glued = (
+            PREFLIGHT + "\nheadline\n" + BEGIN + "\nfinding one: even INCOMPLETE"
+            " passes the scan\nfinding two " + END + "\n" + TERMINAL + " "
+        )
+        restored = (
+            PREFLIGHT + "\nheadline\n" + BEGIN + "\nfinding one: even INCOMPLETE"
+            " passes the scan\nfinding two\n" + END + "\n" + TERMINAL
+        )
+        db, stored = self.glue_db("r8.db", "s-r8", "m-r8", glued)
+        out = self.outdir / "r8.md"
+        proc = self.cli(db, "s-r8", out, self.write_profile(profile, "r8.json"),
+                        extra=["--capture-only", "--message", "m-r8", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=2", proc.stdout.decode())
+        self.assertIn(
+            "not restored: required_lines[0] occurs 0 times, required_lines[1] occurs 0 times",
+            proc.stdout.decode(),
+        )
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        self.assertEqual(Path(str(out) + ".original.md").read_bytes(), stored.encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertTrue(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 2)
+        outcomes = receipt["restore_outcomes"]
+        self.assertEqual(
+            [(item["label"], item["state"], item["seams"]) for item in outcomes],
+            [
+                ("required_lines[0]", "not-found", 0),
+                ("required_lines[1]", "not-found", 0),
+                ("required_lines[2]", "restored", 0),
+                ("required_lines[3]", "restored", 1),
+                ("terminal_line", "restored", 1),
+            ],
+        )
+
+    def test_one_line_capture_with_shared_terminal_space(self):
+        # Mirrors the real round-1 capture: the whole reply pasted as ONE
+        # physical line — the begin marker glued on BOTH sides (GAP 2),
+        # the end marker glued on its left and to the terminal by one
+        # shared space, the prose mentioning the sentinel mid-line, and
+        # the trailing space after the mid-line sentinel kept.
+        glued = (
+            PREFLIGHT + "\nintro\nThe design " + BEGIN + " DESIGN body "
+            + END + " " + TERMINAL + " and the reply lost " + TERMINAL
+        )
+        restored = (
+            PREFLIGHT + "\nintro\nThe design\n" + BEGIN + "\nDESIGN body\n"
+            + END + "\n" + TERMINAL + " and the reply lost\n" + TERMINAL
+        )
+        db, stored = self.glue_db("r9.db", "s-r9", "m-r9", glued)
+        out = self.outdir / "r9.md"
+        proc = self.cli(db, "s-r9", out, self.write_profile(seam_profile(), "r9.json"),
+                        extra=["--capture-only", "--message", "m-r9", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=5", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        self.assertEqual(Path(str(out) + ".original.md").read_bytes(), stored.encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertTrue(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 5)
+        outcomes = receipt["restore_outcomes"]
+        # the shared space is one seam that breaks both sides
+        self.assertEqual(
+            [(item["label"], item["state"], item["seams"]) for item in outcomes],
+            [
+                ("required_lines[0]", "restored", 2),
+                ("required_lines[1]", "restored", 2),
+                ("terminal_line", "restored", 1),
+            ],
+        )
+
+    def test_both_sides_glued_marker_is_restored(self):
+        # GAP 2: a marker glued on BOTH sides mid-line — one space before,
+        # one after — has two seams and both are restored.
+        glued = (
+            PREFLIGHT + "\nlead in prose " + BEGIN + " trail prose\n" + END
+            + "\n" + TERMINAL
+        )
+        restored = (
+            PREFLIGHT + "\nlead in prose\n" + BEGIN + "\ntrail prose\n" + END
+            + "\n" + TERMINAL
+        )
+        db, stored = self.glue_db("r10.db", "s-r10", "m-r10", glued)
+        out = self.outdir / "r10.md"
+        proc = self.cli(db, "s-r10", out, self.write_profile(seam_profile(), "r10.json"),
+                        extra=["--capture-only", "--message", "m-r10", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=2", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        outcomes = receipt["restore_outcomes"]
+        self.assertEqual(
+            [(item["label"], item["state"], item["seams"]) for item in outcomes],
+            [
+                ("required_lines[0]", "restored", 2),  # seams=2 for that marker
+                ("required_lines[1]", "restored", 0),
+                ("terminal_line", "restored", 0),
+            ],
+        )
+
+    def test_standby_shape_begin_right_end_left_terminal_stripped(self):
+        # Mirrors the real round-5 capture: the begin marker opens its
+        # physical line but is glued to the body on its right; the end
+        # marker is glued on its left; the terminal line arrives with a
+        # trailing space that is stripped.
+        glued = (
+            PREFLIGHT + "\n" + BEGIN + " body prose " + END + "\n" + TERMINAL + " "
+        )
+        restored = (
+            PREFLIGHT + "\n" + BEGIN + "\nbody prose\n" + END + "\n" + TERMINAL
+        )
+        db, stored = self.glue_db("r11.db", "s-r11", "m-r11", glued)
+        out = self.outdir / "r11.md"
+        proc = self.cli(db, "s-r11", out, self.write_profile(seam_profile(), "r11.json"),
+                        extra=["--capture-only", "--message", "m-r11", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=3", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertEqual(receipt["restore_sites"], 3)
+        outcomes = receipt["restore_outcomes"]
+        self.assertEqual(
+            [(item["label"], item["state"], item["seams"]) for item in outcomes],
+            [
+                ("required_lines[0]", "restored", 1),
+                ("required_lines[1]", "restored", 1),
+                ("terminal_line", "restored", 1),
+            ],
+        )
+
+
+    def test_marker_twice_not_restored(self):
+        glued = PREFLIGHT + "\n" + BEGIN + "\n" + BEGIN + " tail\n" + END + "\n" + TERMINAL
+        db, stored = self.glue_db("r4.db", "s-r4", "m-r4", glued)
+        out = self.outdir / "r4.md"
+        proc = self.cli(db, "s-r4", out, self.write_profile(seam_profile(), "r4.json"),
+                        extra=["--capture-only", "--message", "m-r4", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("required_lines[0] occurs 2 times", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.encode("utf-8"))
+        self.assertFalse(Path(str(out) + ".original.md").exists())
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertFalse(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 0)
+
+    def test_seam_with_two_spaces_not_restored(self):
+        glued = PREFLIGHT + "\n" + BEGIN + "\npara  " + END + "\n" + TERMINAL
+        db, stored = self.glue_db("r5.db", "s-r5", "m-r5", glued)
+        out = self.outdir / "r5.md"
+        proc = self.cli(db, "s-r5", out, self.write_profile(seam_profile(), "r5.json"),
+                        extra=["--capture-only", "--message", "m-r5", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("seam before required_lines[1] has 2 spaces", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.encode("utf-8"))
+        self.assertFalse(Path(str(out) + ".original.md").exists())
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertFalse(receipt["restored"])
+        self.assertEqual(receipt["restore_sites"], 0)
+
+    def test_both_markers_glued_into_one_line(self):
+        glued = PREFLIGHT + "\n" + BEGIN + " mid " + END + "\n" + TERMINAL
+        restored = PREFLIGHT + "\n" + BEGIN + "\nmid\n" + END + "\n" + TERMINAL
+        db, stored = self.glue_db("r6.db", "s-r6", "m-r6", glued)
+        out = self.outdir / "r6.md"
+        proc = self.cli(db, "s-r6", out, self.write_profile(seam_profile(), "r6.json"),
+                        extra=["--capture-only", "--message", "m-r6", "--restore-seams"])
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode())
+        self.assertIn("applied seams=2", proc.stdout.decode())
+        self.assertEqual(out.read_bytes(), stored.replace(glued, restored).encode("utf-8"))
+        self.assertEqual(Path(str(out) + ".original.md").read_bytes(), stored.encode("utf-8"))
+        receipt = json.loads(Path(str(out) + ".source.json").read_bytes().decode("utf-8"))
+        self.assertTrue(receipt["restored"])
+        self.assertEqual(receipt["failed_checks"], [])
+
+    def test_flag_without_capture_only_is_usage(self):
+        db, _ = self.success_db(name="r7.db", sid="s-r7", mid="m-r7")
+        out = self.outdir / "r7.md"
+        proc = self.cli(db, "s-r7", out, extra=["--restore-seams"])
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("--restore-seams requires --capture-only", proc.stderr.decode())
+        self.assert_no_files(out)
+
+    def test_reversibility_guard_and_roundtrip(self):
+        # The strict one-space rule makes a reversibility failure unreachable
+        # through the CLI (every seam edit is local, deterministic and maps a
+        # unique rebuilt line back to its original), so the guard itself is
+        # exercised here at module level with a doctored edit list.
+        mod = load_tool_module()
+        profile = {"required": [BEGIN, END], "counts": [], "terminal": TERMINAL, "forbidden": []}
+        shapes = [
+            PREFLIGHT + "\n" + BEGIN + " a\nb " + END + "\n" + TERMINAL + " ",
+            PREFLIGHT + "\n" + BEGIN + " mid " + END + "\n" + TERMINAL,
+            PREFLIGHT + "\n" + BEGIN + "\ndone " + END + "\n" + TERMINAL + " ",
+            "REPLY: p\r\n" + BEGIN + " a\r\nb " + END + "\r\nCOMPLETE ",
+        ]
+        for text in shapes:
+            plan = mod.plan_restore(text, profile)
+            self.assertEqual(plan["state"], "applied")
+            mod.prove_reversible(text, plan)  # forward proof holds for every shape
+        glued = shapes[0]
+        plan = mod.plan_restore(glued, profile)
+        doctored = dict(plan, edits=[dict(plan["edits"][0], rebuilt_raw="no such rebuilt line")])
+        with self.assertRaises(mod.Fail) as caught:
+            mod.prove_reversible(glued, doctored)
+        self.assertIn("reversibility assertion failed", str(caught.exception))
+        self.assertIn(plan["edits"][0]["label"], str(caught.exception))
 
 
 if __name__ == "__main__":

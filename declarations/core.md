@@ -1,7 +1,7 @@
 # orchestrate declarations — core: scope, precedence, hard lines, conduct (§1.5, §1.7), the map. capacities: roster.md; reply law: reply.md.
-Read every session at open; inlined by /o-open. source: DECISION-1 (2026-11-28).
+Read every session at open; inlined by /o-open. source: DECISION-1.
 
-- scope: the orchestrate main session only; sub-agents ignore this file.
+- scope: the orchestrate main session only; sub-agents ignore this file. The loop's procedure is SKILL.md's; absent from context, invoke it before composing.
 - precedence: a declaration overrides SKILL.md's defaults; a recent part wins over memory.
 - hard lines, each "<imperative> — home: <part>":
   - a declarations edit commits+pushes the split same session — home: jobs.md §1.6
@@ -26,11 +26,11 @@ Read every session at open; inlined by /o-open. source: DECISION-1 (2026-11-28).
 - exception: a declarations part is read whole, never by line range, never through a sub-agent.
 
 ### 1.8 The map (inlined by the commands)
-- open: ~/.config/opencode/skills/orchestrate/declarations/core.md + ~/.config/opencode/skills/orchestrate/declarations/roster.md + ~/.config/opencode/skills/orchestrate/declarations/machines/new-mac.md + ~/.config/opencode/skills/orchestrate/declarations/projects/<project>.md — inlined by /o-open
-- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — inlined by /o-brief; skeleton copied by command; brief-check's two lines into the hand-over
-- reply: ~/.config/opencode/skills/orchestrate/declarations/reply.md — inlined by /o-reply
-- job: ~/.config/opencode/skills/orchestrate/declarations/jobs.md — pulled, absolute path
-- review, decision, correction, handoff, executor, mailbox: SKILL.md's own sentences, pulled — absolute path
+- open: ~/.config/opencode/skills/orchestrate/declarations/core.md + ~/.config/opencode/skills/orchestrate/declarations/roster.md + ~/.config/opencode/skills/orchestrate/declarations/machines/new-mac.md + ~/.config/opencode/skills/orchestrate/declarations/projects/<project>.md — /o-open
+- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — /o-brief; skeleton copied by command; brief-check's two lines into the hand-over
+- reply: ~/.config/opencode/skills/orchestrate/declarations/reply.md — /o-reply
+- job: ~/.config/opencode/skills/orchestrate/declarations/jobs.md ; pulled
+- review, decision, correction, handoff, executor, mailbox: SKILL.md's own sentences, pulled
 - the orchestrate repo: no project block; delivery law: jobs.md's skill-repos line (agent commits and pushes always)
 - bytecheck.md: pulled whole only when byte-checking is on or a Harvest rung fails
 - self-rescue: before compose/reply/job without that part in recent messages — read it whole now (paths above).

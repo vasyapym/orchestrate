@@ -12,8 +12,10 @@ Checks (each miss is one named failure: path + clause; any miss -> exit 1;
 failures list every miss with the summary line last, bytecheck-style):
 
   1. byte caps per part (DECISION-1, adopted design part A, with amendment
-     5 applied - core.md's cap is 3,500, not the design's 3,000):
-       declarations/core.md           <= 3,500
+     5 applied - core.md's cap is 3,500, not the design's 3,000 - and the
+     owner's Tell-line correction on top: 3,600, the cap yields to the
+     skill-invocation hint in core.md's scope bullet):
+       declarations/core.md           <= 3,600
        declarations/briefs.md         <= 4,000
        declarations/reply.md          <= 4,000
        declarations/roster.md         <= 2,000
@@ -76,9 +78,15 @@ failures list every miss with the summary line last, bytecheck-style):
      tail cannot hide a bullet). Each bullet must carry a well-formed
      " - home: <part>" tail; a bullet without one is a named miss (missing
      or malformed separator), never a crash. The part after the tail must
-     name an existing file under declarations/. Allowed forms: the two-home
-     form "briefs.md and brief-skeleton.md", and template tokens holding <
-     or $ (projects/<project>.md) which are skipped as in check 2. A
+     name an existing file under declarations/. Allowed forms: (a) a plain
+     file name that exists in declarations/; (b) the two-home form
+     "briefs.md and brief-skeleton.md"; (c) "file §section" - the file part
+     (before the § and any whitespace) must name an existing declarations/
+     file, and the §qualifier is decoration, validated as "starts with §,
+     non-empty" and otherwise ignored (a bare § is a malformed home). A
+     token whose file part does not exist stays a named miss; template
+     tokens holding < or $ (projects/<project>.md) are skipped as in
+     check 2. A
      missing hard-lines block (decl-check's decision: the block is
      load-bearing law) or a bullet-free block is a named miss.
   6. the machine-side config root ~/.config/orchestrate/declarations.md:
@@ -110,9 +118,11 @@ EXIT_FAIL = 2
 TOOL_NAME = "decl-check"
 
 # (path relative to root, cap in bytes, citation appended to a breach clause).
-# core.md's cap is DECISION-1 amendment 5: 3,500, not the design's 3,000.
+# core.md's cap: 3,500 by DECISION-1 amendment 5 (not the design's 3,000);
+# 3,600 by the owner's Tell-line correction (the skill-invocation hint lands
+# in core.md's scope bullet, and the cap yields to it).
 BYTE_CAPS = (
-    ("declarations/core.md", 3500, "DECISION-1 amendment 5: 3,500, not the design's 3,000"),
+    ("declarations/core.md", 3600, "DECISION-1 amendment 5: 3,500; the owner's Tell line yields it to 3,600"),
     ("declarations/briefs.md", 4000, ""),
     ("declarations/reply.md", 4000, ""),
     ("declarations/roster.md", 2000, ""),
@@ -395,10 +405,21 @@ def check_homes(root, misses):
             part = part.strip()
             if not part:
                 misses.append((f"{CORE_REL}:{number + 1}", "home", "hard line names no home"))
-            elif not (declarations / part).is_file():
+                continue
+            part_file = part
+            if "\u00a7" in part:  # form (c): "file §section" - the qualifier is decoration
+                part_file, _, qualifier = part.partition("\u00a7")
+                part_file = part_file.strip()
+                if not qualifier.strip():
+                    misses.append((f"{CORE_REL}:{number + 1}", "home",
+                                   f"hard-line home has an empty \u00a7qualifier: {part}"))
+                    continue
+            if not part_file:
+                misses.append((f"{CORE_REL}:{number + 1}", "home", "hard line names no home"))
+            elif not (declarations / part_file).is_file():
                 misses.append(
                     (f"{CORE_REL}:{number + 1}", "home",
-                     f"hard-line home does not name a file in declarations/: {part}"))
+                     f"hard-line home does not name a file in declarations/: {part_file}"))
 
 
 def check_config_root(root, misses):

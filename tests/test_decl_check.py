@@ -187,7 +187,7 @@ def over_cap(tmp_path, name, cap, note=""):
 
 
 def test_cap_core_md_breach(tmp_path):
-    over_cap(tmp_path, "core.md", 3500, note="amendment 5")
+    over_cap(tmp_path, "core.md", 3600, note="Tell line")
 
 
 def test_cap_briefs_md_breach(tmp_path):
@@ -490,6 +490,41 @@ def test_hard_lines_block_missing_fails(tmp_path):
     core.write_text(text[:start] + text[end + 2:], encoding="utf-8")  # the block dropped
     out = run_fail(root, tmp_path / "home")
     assert_single_miss(out, "home", "core.md", "no hard-lines block")
+
+
+def test_hard_line_home_section_qualifier_passes(tmp_path):
+    # form (c), the owner's settled shape: "file §section" - the qualifier is
+    # decoration, the file part must exist
+    root = make_root(tmp_path)
+    core = root / "declarations" / "core.md"
+    text = core.read_text(encoding="utf-8")
+    assert text.count("\u2014 home: reply.md") == 1
+    core.write_text(text.replace("\u2014 home: reply.md",
+                                 "\u2014 home: reply.md \u00a71.3"), encoding="utf-8")
+    out = run_ok(root, tmp_path / "home")
+    assert "reply.md \u00a71.3" not in out  # the qualified home is not a miss
+
+
+def test_hard_line_home_section_missing_file_fails(tmp_path):
+    root = make_root(tmp_path)
+    core = root / "declarations" / "core.md"
+    text = core.read_text(encoding="utf-8")
+    assert text.count("\u2014 home: reply.md") == 1
+    core.write_text(text.replace("\u2014 home: reply.md",
+                                 "\u2014 home: nosuch.md \u00a71.6"), encoding="utf-8")
+    out = run_fail(root, tmp_path / "home")
+    assert_single_miss(out, "home", "core.md:", "nosuch.md")
+
+
+def test_hard_line_home_empty_qualifier_fails(tmp_path):
+    root = make_root(tmp_path)
+    core = root / "declarations" / "core.md"
+    text = core.read_text(encoding="utf-8")
+    assert text.count("\u2014 home: reply.md") == 1
+    core.write_text(text.replace("\u2014 home: reply.md",
+                                 "\u2014 home: reply.md \u00a7"), encoding="utf-8")
+    out = run_fail(root, tmp_path / "home")
+    assert_single_miss(out, "home", "core.md:", "empty \u00a7qualifier")
 
 
 # ---------------------------------------------------------------------------
