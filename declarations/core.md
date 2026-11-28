@@ -1,21 +1,15 @@
-# orchestrate declarations — core: the common block's session laws (§1.1 capacities, §1.4 integration and verification, §1.5 conduct, §1.7 session economy). §1.2/§1.3 moved to declarations/briefs.md, §1.6 to declarations/jobs.md.
-Read every session, at session open. the source: the declarations split, 2026-11-26 (DECISION-3, the hermitage-3d records round).
+# orchestrate declarations — core: scope, precedence, hard lines, conduct (§1.5), economy (§1.7), the map. capacities: roster.md; reply law: reply.md.
+Read every session, at session open; inlined by /o-open. source: DECISION-1 (2026-11-28).
 
-### 1.1 Capacities (names change anytime)
-- creative: the owner picks the model per brief; Fable 5.1 max or Fable 5.2 max preferred, Fable 5.5 Opus max less so, high-reasoning variants less often. Complex tasks, architecture, visual decisions. No screenshots — visual evidence travels as descriptions + measured numbers; the owner's eye validates at sittings (owner, 2026-11-24). ONE output per chat — it cannot pause and proceed; a creative round's stages travel INSIDE one reply (owner, 2026-11-24).
-- creative timeout: ~10 minutes per reply; briefs must fit it: small asks, staged replies over one large draw (owner, 2026-11-13).
-- iterative: Sol 6.1; review, debugging, bug-fix back-and-forth, general tasks (as of 2026-11-10).
-- gentle: Astra-6; debugging without Sol's harshness; doubles as creative (owner, 2026-11-13).
-- reviewer: astra-6.2; very thorough ("autistic"), excellent bug-finder; salvage selectively, never adopt 100% of its output (owner, 2026-11-20).
-- docs/general: fable-5.2; senior-developer register, not overly thorough; under-edits like a guest unless the brief carries the ownership grant (owner, 2026-11-20).
-- runner: Claude Sonnet 5.5; a relay like Sol 6.1 (the owner carries briefs to a Sonnet chat and pastes replies back), unlimited access; ~60 KB per brief, split longer relays by deliverable. For the most trivial mechanical chores that need new text (docs-page re-syncs, README lines, boilerplate), in place of subagents on the session's own model; saves tokens and time (standing, 2026-11-12).
-
-### 1.4 Integration and verification
-- integration: the orchestrator applies integrated changes in the working tree itself, the declarations master clone included: "it always has been you" (owner, 2026-11-16, 2026-11-20). Git delivery is separate, per repo (§2, §3).
-- mechanical code from a spec: delegate to Sol 6.1 or the runner Sonnet 5.5; the orchestrator owns the task and the verification, not the keystrokes (owner, 2026-11-24).
-- verification: anything non-trivial a runner produced is verified by the orchestrator before it counts (diffs reviewed, specs checked); decisions, brief wording and acceptance stay with the orchestrator.
-- trivial: lessons and other trivial deliverables go without byte-check and without heavy verification of that kind: save and report.
-- cleanup-after-yourself: yes. Processed relay briefs and temporary files (the vault numbered brief files, inbox buffers, scratch) are deleted once their replies are integrated; replies, findings and harvest artifacts once their round is closed and the records carry their content; only the repo's committed artifacts and the gitignored lane machinery (probes/) survive.
+- scope: the orchestrate main session only; a sub-agent ignores this file.
+- precedence: a declaration overrides SKILL.md's defaults; a part in a recent message wins over memory.
+- hard lines, each "<imperative> — home: <part>":
+  - every brief is the skeleton, copied by command — home: briefs.md and brief-skeleton.md
+  - the hand-over message quotes brief-check's two lines — home: briefs.md
+  - a reply is harvested by command, never retyped — home: reply.md
+  - the first line after a paste is the RECEIPT line — home: reply.md
+  - exact text is placed from disk, never retyped into a brief — home: briefs.md
+  - commit and push follow the project block — home: projects/<project>.md
 
 ### 1.5 Conduct
 - simple questions: when the owner asks a simple question, they usually mean «ответь коротко и поверхностно» — answer briefly and superficially; depth only on the substantive tasks (owner, 2026-11-26).
@@ -28,3 +22,16 @@ Read every session, at session open. the source: the declarations split, 2026-11
 - Artifacts over ~80 lines are authored by a sub-agent; the orchestrator verifies law-critical lines only.
 - Derivation lives in the session folder; the session carries the verdict and the numbers.
 - Handoff: no hard rule; the orchestrator can't see its own fill — ask the owner when in doubt (owner, 2026-11-26).
+- exception: a declarations part is read whole, never by line range, never through a sub-agent.
+
+### 1.8 The map (inlined by the commands; absolute paths)
+- open: ~/.config/opencode/skills/orchestrate/declarations/core.md + ~/.config/opencode/skills/orchestrate/declarations/roster.md + ~/.config/opencode/skills/orchestrate/declarations/machines/new-mac.md + ~/.config/opencode/skills/orchestrate/declarations/projects/<project>.md — inlined by /o-open
+- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — inlined by /o-brief; the skeleton copied by command; brief-check's two lines into the hand-over message
+- reply: ~/.config/opencode/skills/orchestrate/declarations/reply.md — inlined by /o-reply
+- job: ~/.config/opencode/skills/orchestrate/declarations/jobs.md — pulled, absolute path
+- review, decision, correction, handoff, executor, mailbox: SKILL.md's own sentences, pulled — absolute path
+- bytecheck.md: pulled whole only when byte-checking is on or a Harvest rung fails
+- self-rescue: about to compose, take a reply or file a job, and that part's text is not within the last few messages — read it whole now (paths above).
+
+### 1.9 Maintenance
+- a law is edited in its one home; this file takes pointers, never law; run decl-check.py after any declarations edit (once it exists).

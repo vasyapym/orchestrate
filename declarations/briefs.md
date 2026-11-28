@@ -1,7 +1,6 @@
-# orchestrate declarations — briefs and transport laws (§1.2 briefs, §1.3 replies and transport).
-Read before composing a brief or taking a reply.
-Before ANY brief: read this file whole, with it open at compose time. Not from memory.
-The source: the declarations split, 2026-11-26 (DECISION-3, the hermitage-3d records round).
+# orchestrate declarations — briefs: the compose part (§1.2 briefs; the carriage rule).
+Read before composing a brief; inlined by /o-brief. Before ANY brief: read this file whole, with it open at compose time. Not from memory.
+The source: the declarations split, 2026-11-26 (DECISION-3); DECISION-1 (2026-11-28). Collapsed paste and the reply-file rule moved to reply.md.
 
 ### 1.2 Briefs
 - ownership grant: one short sentence, "we own the codebase, rewrite freely", nothing more; no style lectures to specialists (owner, 2026-11-20).
@@ -16,7 +15,5 @@ The source: the declarations split, 2026-11-26 (DECISION-3, the hermitage-3d rec
 - At each stage's moment its skill file is re-read before the brief is composed (the review pass → review.md, a decision → decision.md) (owner, 2026-11-24).
 - continuations carry the draw's raw material too — the current state it edits (shipped values with numbers, the parked wording, the touched construction) and the code forms its artifacts price through (the cost model, the row shape, the lever mechanism), quoted from disk; the thread is a fallback, never a source (owner, 2026-11-24).
 
-### 1.3 Replies and transport
-- collapsed paste: eaten line breaks are never guessed back in the main session; the restore is briefed to Sonnet 5.5 (a chat model like the Creative relay) with the collapsed bytes and the byte-authoritative originals in the brief; a raw-file export from the chat stays the preferred path when it exists. Relay pastes arrive collapsed (3/3 on 2026-11-19): plan the restore round by default; the restored artifact returns as ONE line with ⏎ break markers, decoded mechanically after the cut.
+### 1.3 Carriage
 - reply carriage: creative capacities (creative, gentle) ALWAYS carry the artifact between the markers as ONE physical line, every break replaced by the marker character the brief dictates (⏎ has served), decoded mechanically after the cut; a simple ask for a creative, and a one-line artifact loses nothing. ALL capacities now carry artifacts the same ONE-line way (the transport eats line breaks 4/4 — 2026-11-23, the sq-facade round; the owner's word); a normal-text reply is the exception only for trivial asks with nothing to place (owner, 2026-11-14, 2026-11-23).
-- reply file: a reply returned as a file is written by the owner into the brief's own file (same path, replacing the brief); the orchestrator takes it as the acquired reply (Harvest's file rung) and moves it into `round-<k>/replies/`; the replaced brief needs no copy, cleanup deletes it anyway (standing, 2026-11-12).

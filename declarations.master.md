@@ -1,1 +1,0 @@
-The declarations are split (2026-11-26, the records decision): read declarations/core.md + declarations/machines/<your-machine>.md + declarations/projects/<your-project>.md per your session; briefs and job-filing laws in declarations/briefs.md and declarations/jobs.md. The history: git log declarations.master.md.
