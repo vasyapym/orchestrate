@@ -1,5 +1,5 @@
 ---
-description: open an orchestrate session — inlines the standing parts (core, roster, machine, project)
+description: open an orchestrate session — inlines core, roster, the machine block (hard-set per install: new-mac) and all project blocks
 ---
 !`cat ~/.config/opencode/skills/orchestrate/declarations/core.md`
 
@@ -7,6 +7,6 @@ description: open an orchestrate session — inlines the standing parts (core, r
 
 !`cat ~/.config/opencode/skills/orchestrate/declarations/machines/new-mac.md`
 
-!`cat ~/.config/opencode/skills/orchestrate/declarations/projects/$1.md 2>/dev/null || echo "(no block for project '$1' — say so and ask which project block to read)"`
+!`cat ~/.config/opencode/skills/orchestrate/declarations/projects/*.md`
 
-The task: $2
+The task: $ARGUMENTS

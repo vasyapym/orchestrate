@@ -1,8 +1,8 @@
-# orchestrate declarations — core: scope, precedence, hard lines, conduct (§1.5), economy (§1.7), the map. capacities: roster.md; reply law: reply.md.
-Read every session, at session open; inlined by /o-open. source: DECISION-1 (2026-11-28).
+# orchestrate declarations — core: scope, precedence, hard lines, conduct (§1.5, §1.7), the map. capacities: roster.md; reply law: reply.md.
+Read every session at open; inlined by /o-open. source: DECISION-1 (2026-11-28).
 
-- scope: the orchestrate main session only; a sub-agent ignores this file.
-- precedence: a declaration overrides SKILL.md's defaults; a part in a recent message wins over memory.
+- scope: the orchestrate main session only; sub-agents ignore this file.
+- precedence: a declaration overrides SKILL.md's defaults; a recent part wins over memory.
 - hard lines, each "<imperative> — home: <part>":
   - every brief is the skeleton, copied by command — home: briefs.md and brief-skeleton.md
   - the hand-over message quotes brief-check's two lines — home: briefs.md
@@ -24,14 +24,15 @@ Read every session, at session open; inlined by /o-open. source: DECISION-1 (202
 - Handoff: no hard rule; the orchestrator can't see its own fill — ask the owner when in doubt (owner, 2026-11-26).
 - exception: a declarations part is read whole, never by line range, never through a sub-agent.
 
-### 1.8 The map (inlined by the commands; absolute paths)
+### 1.8 The map (inlined by the commands)
 - open: ~/.config/opencode/skills/orchestrate/declarations/core.md + ~/.config/opencode/skills/orchestrate/declarations/roster.md + ~/.config/opencode/skills/orchestrate/declarations/machines/new-mac.md + ~/.config/opencode/skills/orchestrate/declarations/projects/<project>.md — inlined by /o-open
-- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — inlined by /o-brief; the skeleton copied by command; brief-check's two lines into the hand-over message
+- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — inlined by /o-brief; skeleton copied by command; brief-check's two lines into the hand-over
 - reply: ~/.config/opencode/skills/orchestrate/declarations/reply.md — inlined by /o-reply
 - job: ~/.config/opencode/skills/orchestrate/declarations/jobs.md — pulled, absolute path
 - review, decision, correction, handoff, executor, mailbox: SKILL.md's own sentences, pulled — absolute path
+- the orchestrate repo: no project block; delivery law: jobs.md's skill-repos line (agent commits and pushes always)
 - bytecheck.md: pulled whole only when byte-checking is on or a Harvest rung fails
-- self-rescue: about to compose, take a reply or file a job, and that part's text is not within the last few messages — read it whole now (paths above).
+- self-rescue: before compose/reply/job without that part in recent messages — read it whole now (paths above).
 
 ### 1.9 Maintenance
 - a law is edited in its one home; this file takes pointers, never law; run decl-check.py after any declarations edit (once it exists).

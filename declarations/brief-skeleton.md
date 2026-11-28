@@ -5,19 +5,23 @@ There's a <N–M>-minute time limit for you to output your answer — i.e. think
 ## The task
 <one or two sentences; less is better>
 
-## Facts (observed this session, on disk or in output; a settled decision is a fact too)
+## Facts (observed; a settled decision is a fact too)
 <each with its path or source>
 
-## Assumptions (the orchestrator's reading; may be wrong — mark or drop)
+## Assumptions (mine; may be wrong — mark or drop)
 <...>
 
-## Open questions (the orchestrator's; the specialist weighs, the user decides)
+## Open questions (mine)
 <...>
 
-## Context and code (verbatim, labelled with path; current or superseded)
+## Context and code (verbatim; labelled with path)
 <files whole or in generous excerpts>
 
 ## Output contract
-In this order: <what to return, in what order>. Cap: ≤<LINES> lines; hard stop at <N–M> minutes — output even if unfinished. First line of the reply, verbatim: `reply <n>-<slug>`. Artifacts: two unique marker lines `=== begin <name> ===` / `=== end <name> ===`, blank-separated; the artifact ONE physical line between them, breaks replaced by ⏎ (U+23CE), decoded mechanically after the cut. Trim commentary before the artifacts first. End with COMPLETE on its own line; if cut off, end without it.
+In this order: <what to return, in what order>. Cap: ≤<LINES> lines; hard stop at <N–M> minutes — output even if unfinished. First line, verbatim: `reply <n>-<slug>`. The artifact travels as the block below, ONE physical line between its markers, breaks replaced by the dictated delimiter, absent from the artifact — default ⏎ (U+23CE); if the artifact documents it, dictate another or ship a raw file — decoded mechanically after the cut. Trim commentary before the artifact first. End with COMPLETE on its own line; if cut off, end without it.
+
+=== begin <name> ===
+<the artifact, ONE <BREAK>-joined line>
+=== end <name> ===
 
 Before answering, challenge key assumptions, consider a credible alternative, and check likely failure cases; give the requested output with concise rationale and any material uncertainties.

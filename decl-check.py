@@ -21,33 +21,66 @@ failures list every miss with the summary line last, bytecheck-style):
        declarations/jobs.md           <= 2,800
      machines/*.md and projects/*.md carry no cap: the design leaves them
      as today.
-  2. path resolution. Every absolute path written in declarations/core.md
-     and every inlined `cat` path in commands/*.md resolves (expand ~, test
-     existence). Token rules:
-       - a path token is a maximal non-whitespace run starting with ~/ or /
-         (a backtick ends it); a token containing < or $ is a template
-         placeholder (projects/<project>.md, shell $1) and is skipped;
-       - a token starting with / must hold a second / - the slash-commands
-         /o-open, /o-brief, /o-reply are commands, not paths;
-       - trailing punctuation (., ; : ) ] em-dash) is stripped.
-     In a command file the `cat` argument is taken up to the first space
-     that begins a shell token, so `2>/dev/null` and `|| echo` tails do not
-     break the parse; if that argument holds < or $ it is skipped.
+  2. commands are checked as directives, and paths resolve in the reviewed
+     tree. In each command file, every line whose first non-space token is
+     `!` must be a well-formed directive - `!` immediately followed by a
+     backtick block; a `!` not followed by a backtick block is a named
+     miss, and so is a cat-shaped inline that lost its `!` (a line whose
+     first non-space token is a backtick block running a cat command -
+     plain prompt text where a directive should be). Directive counts
+     differ per command by design (o-open: 4; o-brief: 3; o-reply: 2) and
+     are not constrained; a missing commands/ directory is a named miss.
+     Each well-formed directive's `cat` path must resolve. The cat argument is taken up
+     to the first space that begins a shell token, so `2>/dev/null` and
+     `|| echo` tails do not break the parse; a token containing < or $ is a
+     template placeholder (projects/<project>.md, shell $1) and is skipped.
+     Resolution distinguishes the reviewed tree from the live installation:
+     a tree-file path - one whose expanded form carries a declarations/ or
+     commands/ segment - resolves against --root (the suffix from that
+     segment), so an installed master cannot mask a file missing from the
+     checked tree. A token outside those segments is not resolved here:
+     only the machine-side config-root check (check 6) touches the live
+     home. In declarations/core.md itself, an absolute path token is a
+     maximal non-whitespace run starting with ~/ or / and beginning at a
+     whitespace or line boundary (a run glued to a preceding word - prose
+     like compose/reply/job - is not a path; a backtick ends the token); a
+     token starting with / must hold a second / - the slash-commands
+     /o-open, /o-brief, /o-reply are commands, not paths; trailing
+     punctuation (., ; : ) ] em-dash) is stripped; < and $ tokens are
+     skipped as above. A cat path may carry a shell glob
+     (declarations/projects/*.md - the adopted whole-projects inline); a
+     glob resolves when it matches at least one file in the checked tree,
+     and one matching nothing is a named miss.
   3. the skeleton's chat-model opener (declarations/brief-skeleton.md
      line 1) equals SKILL.md's chat-model line - the first SKILL.md line
      whose text, after stripping a leading "> ", starts with "Answer as a
      chat model - no agentic operations"; byte-equal after that strip.
   4. the time-limit paragraph - the skeleton's line starting "There's a
-     <N-M>-minute" - occurs in exactly one file of the checked set
-     (declarations/*.md + SKILL.md + bytecheck.md, present files), as a
-     whole physical line byte-equal. 0 or >= 2 fails (the clause names the
-     files); exactly one passes, and by construction that one is the
-     skeleton.
-  5. every hard line in core.md (lines matching ^  - .* - home: ) names a
-     home: the text after "- home: " must name an existing file under
-     declarations/. Allowed forms: the two-home form "briefs.md and
-     brief-skeleton.md", and template tokens holding < or $
-     (projects/<project>.md) which are skipped as in check 2.
+     <N-M>-minute" - is checked where the consumer reads it: the skeleton's
+     prose head, the lines before the first line starting with "## " (the
+     design's order: opener line, then the window paragraph, before any
+     heading). Position-free in the head - blank lines and head reordering
+     do not matter; the paragraph's absence from the head is the named
+     miss, and no extra-home scan runs then (this decision is decl-check's).
+     When present it must occur in exactly one file of the live set - every *.md under declarations/
+     including machines/ and projects/, plus commands/*.md; historical
+     round records and the vault are not scanned. A second copy - a
+     project block, a machine block, a command - is a named miss naming
+     the files; exactly one passes, and by construction that one is the
+     skeleton. If the slot itself is empty, the slot is the named miss and
+     no extra-home scan runs (this decision is decl-check's).
+  5. every hard line in core.md names a home. The hard lines are the
+     bullets of the hard-lines block: the top-level "- hard lines" bullet
+     plus the following consecutive two-space-indented "  - " bullets
+     (identification is independent of the tail, so a stripped or malformed
+     tail cannot hide a bullet). Each bullet must carry a well-formed
+     " - home: <part>" tail; a bullet without one is a named miss (missing
+     or malformed separator), never a crash. The part after the tail must
+     name an existing file under declarations/. Allowed forms: the two-home
+     form "briefs.md and brief-skeleton.md", and template tokens holding <
+     or $ (projects/<project>.md) which are skipped as in check 2. A
+     missing hard-lines block (decl-check's decision: the block is
+     load-bearing law) or a bullet-free block is a named miss.
   6. the machine-side config root ~/.config/orchestrate/declarations.md:
      missing -> miss (named); a symlink -> its real path must equal
      core.md's real path; a regular file -> its bytes must equal core.md's;
@@ -64,6 +97,7 @@ library only. Python 3.8+.
 """
 
 import argparse
+import glob
 import os
 import re
 import sys
@@ -95,11 +129,15 @@ CONFIG_ROOT = "~/.config/orchestrate/declarations.md"
 CHAT_MODEL_PREFIX = "Answer as a chat model \u2014 no agentic operations"
 PARAGRAPH_PREFIX = "There's a <N\u2013M>-minute"
 HOME_SEP = " \u2014 home: "
-HARD_LINE_RE = re.compile(r"^  - .*\u2014 home: ")
-PATH_TOKEN_RE = re.compile(r"(?:~/|/)[^\s`]+")
+HARD_LINES_HEADER_RE = re.compile(r"^-\s+hard lines\b")
+BULLET_RE = re.compile(r"^  - ")
+DIRECTIVE_RE = re.compile(r"^\s*!`")
+CAT_INLINE_RE = re.compile(r"^`cat(\s|$)")
+PATH_TOKEN_RE = re.compile(r"(?:(?<=\s)|^)(?:~/|/)[^\s`]+")
 SPAN_RE = re.compile(r"`([^`]*)`")
 CAT_RE = re.compile(r"(?:^|\s)cat\s+([^\s`]+)")
 TRAILING_PUNCT = ".,;:)]\u2014"
+TREE_SEGMENTS = ("declarations", "commands")
 
 
 class Fail(Exception):
@@ -141,7 +179,7 @@ def read_bytes(path, what):
 
 
 def path_tokens(line):
-    """Absolute path tokens of one line, per the check-2 token rules."""
+    """Absolute path tokens of one core.md line, per the check-2 token rules."""
     for match in PATH_TOKEN_RE.finditer(line):
         token = match.group(0).rstrip(TRAILING_PUNCT)
         if "<" in token or "$" in token:
@@ -150,12 +188,25 @@ def path_tokens(line):
             yield token
 
 
-def resolves(root, token):
-    """Expand ~, resolve relative tokens against the root, test existence."""
-    resolved = os.path.expanduser(token)
-    if not os.path.isabs(resolved):
-        resolved = os.path.join(str(root), resolved)
-    return os.path.exists(resolved)
+def cat_tokens(line):
+    """`cat` arguments of one directive line, per the check-2 cat rules."""
+    for span in SPAN_RE.finditer(line):
+        for match in CAT_RE.finditer(span.group(1)):
+            token = match.group(1)
+            if "<" in token or "$" in token:
+                continue  # template placeholder: projects/$1.md
+            yield token
+
+
+def tree_rel_of(expanded):
+    """The tree-file suffix of an expanded cat path: the part from a
+    declarations/ or commands/ segment on; None when the path names no
+    tree file (it is outside the checked tree and not resolved here)."""
+    segments = expanded.split("/")
+    for segment in TREE_SEGMENTS:
+        if segment in segments:
+            return "/".join(segments[segments.index(segment):])
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -178,31 +229,75 @@ def check_caps(root, misses):
 
 
 def check_core_paths(root, misses):
-    """Check 2, first half: absolute paths written in core.md resolve."""
+    """Check 2, first half: absolute paths written in core.md resolve in the tree."""
     text = read_text(root / CORE_REL, CORE_REL)
     for number, line in enumerate(text.split("\n"), 1):
         for token in path_tokens(line):
-            if not resolves(root, token):
+            resolved = os.path.expanduser(token)
+            if not os.path.isabs(resolved):
+                resolved = os.path.join(str(root), resolved)
+            if not os.path.exists(resolved):
                 misses.append((f"{CORE_REL}:{number}", "path", f"path does not resolve: {token}"))
 
 
-def check_command_paths(root, misses):
-    """Check 2, second half: inlined `cat` paths in commands/*.md resolve."""
+def check_command_directives(root, misses):
+    """Check 2, first half: every line whose first non-space token is `!` must
+    be a well-formed directive (`!` immediately followed by a backtick block);
+    a cat-shaped inline that lost its `!` is plain prompt text where a
+    directive should be - a named miss. Counts differ per command by design
+    and are not constrained. Returns the command files whose directive paths
+    are then resolved."""
     commands = root / "commands"
     if not commands.is_dir():
-        return  # nothing to scan; this check does not test the layout itself
-    for path in sorted(commands.glob("*.md")):
+        misses.append(("commands", "directive", "commands/ directory is missing"))
+        return []
+    paths = sorted(commands.glob("*.md"))
+    if not paths:
+        misses.append(("commands", "directive", "no command files in commands/"))
+    for path in paths:
         rel = path.relative_to(root).as_posix()
         text = read_text(path, rel)
         for number, line in enumerate(text.split("\n"), 1):
-            for span in SPAN_RE.finditer(line):
-                for match in CAT_RE.finditer(span.group(1)):
-                    token = match.group(1)
-                    if "<" in token or "$" in token:
-                        continue  # template placeholder: projects/$1.md
-                    if not resolves(root, token):
-                        misses.append(
-                            (f"{rel}:{number}", "path", f"cat path does not resolve: {token}"))
+            stripped = line.lstrip()
+            if not stripped:
+                continue
+            if stripped.startswith("!"):
+                if not DIRECTIVE_RE.match(line):
+                    misses.append((f"{rel}:{number}", "directive",
+                                   "line starts with ! but is not a well-formed directive "
+                                   "(! must be immediately followed by a backtick block)"))
+            elif CAT_INLINE_RE.match(stripped):
+                misses.append((f"{rel}:{number}", "directive",
+                               "cat inline lost its leading ! (plain prompt text where "
+                               "a directive should be)"))
+    return paths
+
+
+def check_command_paths(root, paths, misses):
+    """Check 2, second half: each directive's cat path resolves in the checked
+    tree; the live installation cannot mask a tree file."""
+    for path in paths:
+        rel = path.relative_to(root).as_posix()
+        text = read_text(path, rel)
+        for number, line in enumerate(text.split("\n"), 1):
+            if not DIRECTIVE_RE.match(line):
+                continue  # prompt text, not shell: only directives carry paths
+            for token in cat_tokens(line):
+                expanded = os.path.expanduser(token)
+                if not os.path.isabs(expanded):
+                    expanded = os.path.join(str(root), expanded)
+                tree_rel = tree_rel_of(expanded)
+                if tree_rel is None:
+                    continue  # outside the checked tree; only check 6 reads the live home
+                tree_path = str(root / tree_rel)
+                if any(ch in tree_rel for ch in "*?["):
+                    if not glob.glob(tree_path):
+                        misses.append((f"{rel}:{number}", "path",
+                                       f"cat path resolves to nothing in the checked tree: "
+                                       f"{tree_rel} (glob matched 0 files)"))
+                elif not os.path.exists(tree_path):
+                    misses.append((f"{rel}:{number}", "path",
+                                   f"cat path does not resolve in the checked tree: {tree_rel}"))
 
 
 def check_opener(root, misses):
@@ -221,39 +316,77 @@ def check_opener(root, misses):
 
 
 def check_paragraph(root, occurrence_set, misses):
-    """Check 4: the time-limit paragraph occurs in exactly one checked file."""
-    paragraph = None
+    """Check 4: the time-limit paragraph sits in the skeleton's prose head -
+    the lines before the first line starting with '## ' (position-free there;
+    blank lines and head reordering do not matter) - and occurs in exactly
+    one live file."""
+    head = []
     for line in read_text(root / SKELETON_REL, SKELETON_REL).split("\n"):
+        if line.startswith("## "):
+            break  # the first heading ends the prose head
+        head.append(line)
+    paragraph = None
+    for line in head:
         if line.startswith(PARAGRAPH_PREFIX):
             paragraph = line
             break
     if paragraph is None:
         misses.append((SKELETON_REL, "paragraph",
-                       "time-limit paragraph occurs in 0 files: no skeleton line starts "
-                       "'There's a <N-M>-minute'"))
+                       "time-limit paragraph not in the skeleton's prose head "
+                       "(the lines before the first '## ' heading; the slot the "
+                       "consumer reads)"))
         return
     holders = []
     for path in occurrence_set:
         rel = path.relative_to(root).as_posix()
         if paragraph in read_text(path, rel).split("\n"):
             holders.append(rel)
-    if len(holders) == 1:
-        return  # by construction the one holder is the skeleton
-    if not holders:
-        misses.append((SKELETON_REL, "paragraph",
-                       "time-limit paragraph occurs in 0 files of the checked set"))
-    else:
+    if len(holders) > 1:
         misses.append((SKELETON_REL, "paragraph",
                        "time-limit paragraph occurs in %d files: %s (one home only)"
                        % (len(holders), ", ".join(holders))))
 
 
+def hard_line_block(lines):
+    """The hard-lines block: the '- hard lines' bullet and its following
+    consecutive two-space-indented bullets. Returns (start, bullet_indexes);
+    (None, []) when the block is absent."""
+    start = None
+    for index, line in enumerate(lines):
+        if HARD_LINES_HEADER_RE.match(line):
+            start = index
+            break
+    if start is None:
+        return None, []
+    bullets = []
+    for index in range(start + 1, len(lines)):
+        if BULLET_RE.match(lines[index]):
+            bullets.append(index)
+        else:
+            break  # a blank line, a less-indented line or the next heading ends the block
+    return start, bullets
+
+
 def check_homes(root, misses):
-    """Check 5: every core.md hard line names an existing home in declarations/."""
+    """Check 5: the hard-lines block's bullets name existing homes in
+    declarations/; identification is independent of the tail, so a missing
+    or malformed ' - home: ' tail is a named miss, never a crash."""
     declarations = root / "declarations"
     text = read_text(root / CORE_REL, CORE_REL)
-    for number, line in enumerate(text.split("\n"), 1):
-        if not HARD_LINE_RE.match(line):
+    lines = text.split("\n")
+    start, bullets = hard_line_block(lines)
+    if start is None:
+        misses.append((CORE_REL, "home", "no hard-lines block found (a '- hard lines' bullet)"))
+        return
+    if not bullets:
+        misses.append((f"{CORE_REL}:{start + 1}", "home", "hard-lines block carries no bullets"))
+        return
+    for number in bullets:
+        line = lines[number]
+        if HOME_SEP not in line:
+            misses.append((f"{CORE_REL}:{number + 1}", "home",
+                           "hard line lacks a well-formed ' \u2014 home: <part>' tail "
+                           "(missing or malformed separator)"))
             continue
         home = line.rsplit(HOME_SEP, 1)[1].strip()
         if "<" in home or "$" in home:
@@ -261,10 +394,10 @@ def check_homes(root, misses):
         for part in home.split(" and "):
             part = part.strip()
             if not part:
-                misses.append((f"{CORE_REL}:{number}", "home", "hard line names no home"))
+                misses.append((f"{CORE_REL}:{number + 1}", "home", "hard line names no home"))
             elif not (declarations / part).is_file():
                 misses.append(
-                    (f"{CORE_REL}:{number}", "home",
+                    (f"{CORE_REL}:{number + 1}", "home",
                      f"hard-line home does not name a file in declarations/: {part}"))
 
 
@@ -307,11 +440,12 @@ def run(args):
     misses = []
     check_caps(root, misses)
     check_core_paths(root, misses)
-    check_command_paths(root, misses)
+    command_paths = check_command_directives(root, misses)
+    check_command_paths(root, command_paths, misses)
     check_opener(root, misses)
-    declarations_md = sorted((root / "declarations").glob("*.md"))
-    occurrence_set = [p for p in declarations_md + [root / SKILL_REL, root / BYTECHECK_REL]
-                      if p.is_file()]
+    declarations_md = sorted((root / "declarations").rglob("*.md"))
+    command_md = sorted((root / "commands").glob("*.md"))
+    occurrence_set = [p for p in declarations_md + command_md if p.is_file()]
     check_paragraph(root, occurrence_set, misses)
     check_homes(root, misses)
     if not args.no_machine:
