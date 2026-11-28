@@ -187,7 +187,7 @@ def over_cap(tmp_path, name, cap, note=""):
 
 
 def test_cap_core_md_breach(tmp_path):
-    over_cap(tmp_path, "core.md", 3600, note="Tell line")
+    over_cap(tmp_path, "core.md", 3800, note="freeze line")
 
 
 def test_cap_briefs_md_breach(tmp_path):

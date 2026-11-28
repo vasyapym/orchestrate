@@ -1,5 +1,7 @@
 # extract-reply — on-demand reference
 
+> FROZEN (DECISION-2, 2026-11-28): the tool and this page change only on a recorded acquisition failure, code + test + pin together.
+
 `extract-reply.py` acquires a specialist reply from the opencode session database over a read-only SQLite connection and writes it, byte-exact, to a destination file plus a provenance receipt. This page is the whole interface; read it on first use. There is no setup beyond Python 3. It is the second rung of `bytecheck.md`'s capture ladder and proves database-to-file fidelity only — nothing about what the chat changed before storage.
 
 ## Harvest conventions

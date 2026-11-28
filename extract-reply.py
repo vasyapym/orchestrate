@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """extract-reply — acquire a stored specialist reply from the opencode session database.
 
+FROZEN (DECISION-2, 2026-11-28): changes only on a recorded acquisition
+failure, code + test + pin together.
+
 Read-only SQLite helper: it opens the session database through a single
 ``file:`` URI with ``mode=ro``, keeps every read inside one bounded
 transaction, and never modifies the database or its sidecars. The only files

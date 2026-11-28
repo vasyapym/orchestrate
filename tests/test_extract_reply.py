@@ -1,5 +1,8 @@
 """Fixture suite for extract-reply.py — plan items H1-H3, F1-F13, G1-G9, P1-P4, S1-S3.
 
+FROZEN (DECISION-2, 2026-11-28): changes only on a recorded acquisition
+failure, together with the tool it pins.
+
 Safety contract for this suite (operational cautions C1-C4):
 - Fixtures are disposable temp SQLite files; the host database is never opened
   by the suite. The DDL below was exported once, by hand, with a read-only

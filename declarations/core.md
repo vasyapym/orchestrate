@@ -37,3 +37,4 @@ Read every session at open; inlined by /o-open. source: DECISION-1.
 
 ### 1.9 Maintenance
 - a law is edited in its one home; this file takes pointers, never law; run decl-check.py after any declarations edit (once it exists).
+- frozen (DECISION-2): extract-reply.py + its suite, and bytecheck.py, change only on a recorded acquisition failure — code + test + pin together.

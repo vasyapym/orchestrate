@@ -14,8 +14,9 @@ failures list every miss with the summary line last, bytecheck-style):
   1. byte caps per part (DECISION-1, adopted design part A, with amendment
      5 applied - core.md's cap is 3,500, not the design's 3,000 - and the
      owner's Tell-line correction on top: 3,600, the cap yields to the
-     skill-invocation hint in core.md's scope bullet):
-       declarations/core.md           <= 3,600
+     skill-invocation hint in core.md's scope bullet; 3,800 by DECISION-2's
+     build, the freeze line - the last move, the caps die with this tool):
+       declarations/core.md           <= 3,800
        declarations/briefs.md         <= 4,000
        declarations/reply.md          <= 4,000
        declarations/roster.md         <= 2,000
@@ -120,9 +121,10 @@ TOOL_NAME = "decl-check"
 # (path relative to root, cap in bytes, citation appended to a breach clause).
 # core.md's cap: 3,500 by DECISION-1 amendment 5 (not the design's 3,000);
 # 3,600 by the owner's Tell-line correction (the skill-invocation hint lands
-# in core.md's scope bullet, and the cap yields to it).
+# in core.md's scope bullet, and the cap yields to it); 3,800 by DECISION-2's
+# build (the freeze line) - the last move, the caps die with this tool.
 BYTE_CAPS = (
-    ("declarations/core.md", 3600, "DECISION-1 amendment 5: 3,500; the owner's Tell line yields it to 3,600"),
+    ("declarations/core.md", 3800, "DECISION-1 amendment 5: 3,500; Tell line: 3,600; DECISION-2 build, the freeze line: 3,800, the last move"),
     ("declarations/briefs.md", 4000, ""),
     ("declarations/reply.md", 4000, ""),
     ("declarations/roster.md", 2000, ""),
