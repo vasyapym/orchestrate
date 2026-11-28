@@ -2,7 +2,7 @@
 Read before composing a brief; inlined by /o-brief. Before ANY brief: read this file whole, with it open at compose time. Not from memory.
 The source: the declarations split, 2026-11-26 (DECISION-3); DECISION-1 (2026-11-28). The two verbatim brief texts live in declarations/brief-skeleton.md alone.
 
-First act: copy declarations/brief-skeleton.md into the brief folder as `<n>-<slug>.md` by command; fill its `<…>` placeholders; run brief-check.py.
+First act: copy declarations/brief-skeleton.md into the brief folder as `<n>-<slug>.md` by command; fill its `<…>` placeholders; run check.py brief.
 
 ### Content
 - ownership grant: one short sentence, "we own the codebase, rewrite freely", nothing more; no style lectures to specialists (owner, 2026-11-20).
@@ -22,4 +22,4 @@ First act: copy declarations/brief-skeleton.md into the brief folder as `<n>-<sl
 - reply carriage: creative capacities (creative, gentle) ALWAYS carry the artifact between the markers as ONE physical line, every break replaced by the marker character the brief dictates (⏎ has served), decoded mechanically after the cut; a simple ask for a creative, and a one-line artifact loses nothing. ALL capacities now carry artifacts the same ONE-line way (the transport eats line breaks 4/4 — 2026-11-23, the sq-facade round; the owner's word); a normal-text reply is the exception only for trivial asks with nothing to place (owner, 2026-11-14, 2026-11-23).
 
 ### Hand-over
-- run brief-check.py on the filled brief; quote its two lines (VERDICT, HARVEST) into the hand-over message; note the hand-over time — acquisition scopes its search by it.
+- run check.py brief on the filled brief; quote its two lines (VERDICT, HARVEST) into the hand-over message; note the hand-over time — acquisition scopes its search by it.

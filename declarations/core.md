@@ -6,7 +6,7 @@ Read every session at open; inlined by /o-open. source: DECISION-1.
 - hard lines, each "<imperative> — home: <part>":
   - a declarations edit commits+pushes the split same session — home: jobs.md §1.6
   - every brief is the skeleton, copied by command — home: briefs.md and brief-skeleton.md
-  - the hand-over message quotes brief-check's two lines — home: briefs.md
+  - the hand-over message quotes check.py's two lines — home: briefs.md
   - a reply is harvested by command, never retyped — home: reply.md
   - the first line after a paste is the RECEIPT line — home: reply.md
   - exact text is placed from disk, never retyped into a brief — home: briefs.md
@@ -27,7 +27,7 @@ Read every session at open; inlined by /o-open. source: DECISION-1.
 
 ### 1.8 The map (inlined by the commands)
 - open: ~/.config/opencode/skills/orchestrate/declarations/core.md + ~/.config/opencode/skills/orchestrate/declarations/roster.md + ~/.config/opencode/skills/orchestrate/declarations/machines/new-mac.md + ~/.config/opencode/skills/orchestrate/declarations/projects/<project>.md — /o-open
-- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — /o-brief; skeleton copied by command; brief-check's two lines into the hand-over
+- compose: ~/.config/opencode/skills/orchestrate/declarations/briefs.md + roster.md — /o-brief; skeleton copied by command; check.py's two lines into the hand-over
 - reply: ~/.config/opencode/skills/orchestrate/declarations/reply.md — /o-reply
 - job: ~/.config/opencode/skills/orchestrate/declarations/jobs.md ; pulled
 - review, decision, correction, handoff, executor, mailbox: SKILL.md's own sentences, pulled
