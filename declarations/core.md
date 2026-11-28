@@ -4,6 +4,7 @@ Read every session at open; inlined by /o-open. source: DECISION-1 (2026-11-28).
 - scope: the orchestrate main session only; sub-agents ignore this file.
 - precedence: a declaration overrides SKILL.md's defaults; a recent part wins over memory.
 - hard lines, each "<imperative> — home: <part>":
+  - a declarations edit commits+pushes the split same session — home: jobs.md §1.6
   - every brief is the skeleton, copied by command — home: briefs.md and brief-skeleton.md
   - the hand-over message quotes brief-check's two lines — home: briefs.md
   - a reply is harvested by command, never retyped — home: reply.md
